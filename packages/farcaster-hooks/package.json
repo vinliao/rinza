@@ -1,0 +1,28 @@
+{
+  "name": "@rinza/farcaster-hooks",
+  "version": "0.0.1",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bunx vite",
+    "fmt": "bunx biome format --write src",
+    "build": "bunx tsc -p tsconfig.build.json",
+    "build:watch": "bun run build --watch"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.2.2",
+    "@types/react": "^18.2.27",
+    "@types/react-dom": "^18.2.12",
+    "@vitejs/plugin-react": "^4.1.0",
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vite": "^4.4.11",
+    "zod": "^3.22.4"
+  }
+}

@@ -3,9 +3,12 @@
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
-    "build:notifier": "cd apps/notifier && npm run build -- --watch",
-    "serve:notifier": "cd apps/notifier && npm run serve",
-    "dev": "concurrently \"npm run build:notifier\" \"npm run serve:notifier\""
+    "fmt": "bunx biome format apps --write && bunx biome format packages --write",
+    "notifier:build": "cd apps/notifier && npm run build -- --watch",
+    "notifier:serve": "cd apps/notifier && npm run serve",
+    "notifier:dev": "cd apps/notifier && npm run dev",
+    "build:farcaster-hooks": "cd packages/farcaster-hooks && npm run build -- --watch",
+    "dev:farcaster-hooks": "cd packages/farcaster-hooks && npm run dev"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.2.2",

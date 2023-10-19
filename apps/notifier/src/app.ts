@@ -41,8 +41,7 @@ app.get("/listen", async (req, res) => {
 app.get("/listen-test", function poll(req, res) {
 	setTimeout(() => {
 		const hubEventId = Math.random().toString(36).substring(2, 42);
-		// const fid = Math.floor(Math.random() * 20000) + 1;
-    const fid = -1
+		const fid = Math.floor(Math.random() * 20000) + 1;
 		const hash = Math.random().toString(36).substring(2, 42);
 		res.send({ fid, hash, hubEventId });
 	}, 2000);
