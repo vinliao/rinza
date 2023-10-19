@@ -1,5 +1,5 @@
 import { appendFile } from "node:fs";
-import {z} from 'zod'
+import { z } from "zod";
 
 export const clog = (where: string, data: unknown): void => {
 	const stringify = (data: unknown): string => {
@@ -18,7 +18,6 @@ export const clog = (where: string, data: unknown): void => {
 
 export const sleep = (ms: number): Promise<void> =>
 	new Promise((resolve) => setTimeout(resolve, ms));
-
 
 export type CastByIdType = z.infer<typeof CastByIdSchema>;
 export const CastByIdSchema = z.object({

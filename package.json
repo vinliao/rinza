@@ -1,10 +1,15 @@
 {
   "name": "rinza",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build:notifier": "cd apps/notifier && npm run build -- --watch",
+    "serve:notifier": "cd apps/notifier && npm run serve",
+    "dev": "concurrently \"npm run build:notifier\" \"npm run serve:notifier\""
+  },
   "devDependencies": {
-    "@rinza/utils": "workspace:*"
+    "@biomejs/biome": "^1.2.2",
+    "@rinza/utils": "workspace:*",
+    "concurrently": "^8.2.2"
   }
 }
