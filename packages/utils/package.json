@@ -1,0 +1,19 @@
+{
+  "name": "@rinza/utils",
+  "module": "index.ts",
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "fmt": "npx biome format . --write"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@biomejs/biome": "^1.2.2",
+    "zod": "^3.22.4"
+  }
+}

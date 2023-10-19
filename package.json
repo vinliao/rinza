@@ -1,0 +1,10 @@
+{
+  "name": "rinza",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@rinza/utils": "workspace:*"
+  }
+}
