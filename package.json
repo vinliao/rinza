@@ -4,11 +4,12 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "fmt": "bunx biome format apps --write && bunx biome format packages --write",
-    "notifier:build": "cd apps/notifier && npm run build -- --watch",
+    "notifier:build": "cd apps/notifier && npm run build",
     "notifier:serve": "cd apps/notifier && npm run serve",
     "notifier:dev": "cd apps/notifier && npm run dev",
-    "build:farcaster-hooks": "cd packages/farcaster-hooks && npm run build -- --watch",
-    "dev:farcaster-hooks": "cd packages/farcaster-hooks && npm run dev"
+    "farcaster-hooks:build": "cd packages/farcaster-hooks && npm run build",
+    "farcaster-hooks:serve": "cd packages/farcaster-hooks && npm run serve",
+    "farcaster-hooks:dev": "cd packages/farcaster-hooks && npm run dev"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.2.2",

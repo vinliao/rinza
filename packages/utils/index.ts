@@ -75,7 +75,52 @@ export const InternalCastSchema = z.object({
 	username: z.string(),
 });
 
-type CastFnType = (text: string, cast: InternalCastType) => Promise<unknown>;
+// TODO: organize these later
+// complete all the schema and stuff
+export const BufferSchema = z.instanceof(Buffer).transform((buffer) => {
+	return `0x${buffer.toString("hex")}`;
+});
+
+export type CastAddBodyType = z.infer<typeof CastAddBodySchema>;
+export const CastAddBodySchema = z.object({
+	embedsDeprecated: z.array(z.unknown()),
+	mentions: z.array(z.number()),
+	parentCastId: z
+		.object({
+			fid: z.number(),
+			hash: BufferSchema,
+		})
+		.nullish(),
+	text: z.string(),
+	mentionsPositions: z.array(z.number()),
+	embeds: z.array(z.object({ url: z.string() })),
+});
+
+export type MergeMessageBodyType = z.infer<typeof MergeMessageBodySchema>;
+export const MergeMessageBodySchema = z.object({
+	message: z.object({
+		data: z.object({
+			type: z.number(),
+			fid: z.number(),
+			timestamp: z.number(),
+			network: z.number(),
+			castAddBody: CastAddBodySchema,
+		}),
+		hash: BufferSchema,
+		hashScheme: z.number(),
+		signature: BufferSchema,
+		signatureScheme: z.number(),
+		signer: BufferSchema,
+	}),
+	// deletedMessages: z.array(z.unknown()), // deal with this later
+});
+
+export type EventType = z.infer<typeof EventSchema>;
+export const EventSchema = z.object({
+	type: z.number(),
+	id: z.number(),
+	mergeMessageBody: MergeMessageBodySchema,
+});
 
 // =====================================================================================
 // clients
@@ -154,8 +199,6 @@ export const hubble = (hubHTTP: string, signer: string) => {}; // TODO
 // fetcher
 // =====================================================================================
 
-// wrapper around Hubble's HTTP API:
-
 /**
  * A wrapper around Hubble's HTTP API.
  *
@@ -178,9 +221,9 @@ export const makeHubbleFetcher = (hubHTTP: string) => {
 		const toSnakeCase = (str: string) =>
 			str.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
 		const url = new URL(`${hubHTTP}/v1/${endpoint}`);
-		Object.keys(params).forEach((key) =>
-			url.searchParams.append(toSnakeCase(key), String(params[key])),
-		);
+		for (const key of Object.keys(params)) {
+			url.searchParams.append(toSnakeCase(key), String(params[key]));
+		}
 		const data = await fetch(url).then((res) => res.json());
 		clog("fetchHub/url", url);
 		clog("fetchHub/data", data);

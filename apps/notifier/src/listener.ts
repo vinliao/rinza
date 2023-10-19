@@ -1,50 +1,9 @@
 import { z } from "zod";
 import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
 import emitter from "./emitter";
-import { clog } from "@rinza/utils";
+import { clog, EventSchema } from "@rinza/utils";
 
-const BufferSchema = z.instanceof(Buffer).transform((buffer) => {
-	return `0x${buffer.toString("hex")}`;
-});
-
-const CastAddBodySchema = z.object({
-	embedsDeprecated: z.array(z.unknown()),
-	mentions: z.array(z.number()),
-	parentCastId: z
-		.object({
-			fid: z.number(),
-			hash: BufferSchema,
-		})
-		.nullish(),
-	text: z.string(),
-	mentionsPositions: z.array(z.number()),
-	embeds: z.array(z.object({ url: z.string() })),
-});
-
-const MergeMessageBodySchema = z.object({
-	message: z.object({
-		data: z.object({
-			type: z.number(),
-			fid: z.number(),
-			timestamp: z.number(),
-			network: z.number(),
-			castAddBody: CastAddBodySchema,
-		}),
-		hash: BufferSchema,
-		hashScheme: z.number(),
-		signature: BufferSchema,
-		signatureScheme: z.number(),
-		signer: BufferSchema,
-	}),
-	// deletedMessages: z.array(z.unknown()), // deal with this later
-});
-
-const EventSchema = z.object({
-	type: z.number(),
-	id: z.number(),
-	mergeMessageBody: MergeMessageBodySchema,
-});
-
+// TODO: handle event type > 1
 const eventHandler = (event: unknown) => {
 	const parsed = EventSchema.parse(event);
 	const castAddBody = parsed.mergeMessageBody.message.data.castAddBody;

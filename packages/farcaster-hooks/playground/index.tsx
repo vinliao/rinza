@@ -29,6 +29,7 @@ const App = () => {
 	return (
 		<div>
 			<p>user!</p>
+			{/* TODO: this page should test all the hooks, display all the stuff */}
 			{isLoading && <div>Loading...</div>}
 			{isError && <div>Error</div>}
 			{data && <div>Latest Event: {JSON.stringify(data)}</div>}

@@ -4,17 +4,19 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bunx vite",
+    "serve": "bunx vite",
     "fmt": "bunx biome format --write src",
     "build": "bunx tsc -p tsconfig.build.json",
-    "build:watch": "bun run build --watch"
+    "build:watch": "bun run build --watch",
+    "dev": "concurrently \"npm run build:watch\" \"npm run serve\""
   },
   "devDependencies": {
     "@biomejs/biome": "^1.2.2",
     "@types/react": "^18.2.27",
     "@types/react-dom": "^18.2.12",
     "@vitejs/plugin-react": "^4.1.0",
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "concurrently": "^8.2.2"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
