@@ -14,6 +14,7 @@ const App = () => {
 		hash: z.string(),
 		fid: z.number(),
 		type: z.number(),
+    timestamp: z.number(),
 	});
 	type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 	const [events, setEvents] = useState<NotifierEventType[]>([]);

@@ -2,7 +2,6 @@ import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
 import { z } from "zod";
 import emitter from "./emitter";
 import { BufferSchema, clog } from "@rinza/utils";
-import {useListener} from '@rinza/farcaster-hooks'
 
 const eventHandler = (event: unknown) => {
 	clog("linkAddHandler/event", event);
@@ -11,7 +10,8 @@ const eventHandler = (event: unknown) => {
 	const hash = BufferSchema.parse(event.mergeMessageBody.message.hash);
 	const fid = z.number().parse(event.mergeMessageBody.message.data.fid);
 	const type = z.number().parse(event.mergeMessageBody.message.data.type);
-	emitter.emit("all-event", { hubEventId, hash, fid, type });
+	const timestamp = z.number().parse(event.mergeMessageBody.message.data.timestamp);
+	emitter.emit("all-event", { hubEventId, hash, fid, type, timestamp });
 };
 
 const hubRpcEndpoint = "20eef7.hubs.neynar.com:2283";

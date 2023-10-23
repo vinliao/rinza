@@ -21,6 +21,7 @@ const NotifierEventSchema = z.object({
 	hash: z.string(),
 	fid: z.number(),
 	type: z.number(),
+  timestamp: z.number(),
 });
 type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
