@@ -2,6 +2,7 @@ import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
 import { z } from "zod";
 import emitter from "./emitter";
 import { BufferSchema, clog } from "@rinza/utils";
+import {useListener} from '@rinza/farcaster-hooks'
 
 const eventHandler = (event: unknown) => {
 	clog("linkAddHandler/event", event);

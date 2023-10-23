@@ -1,7 +1,7 @@
 {
   "name": "@rinza/farcaster-hooks",
   "version": "0.0.1",
-  "module": "index.ts",
+  "module": "./index.tsx",
   "type": "module",
   "scripts": {
     "serve": "bunx vite",

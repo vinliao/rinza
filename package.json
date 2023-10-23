@@ -13,7 +13,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.2.2",
-    "@rinza/utils": "workspace:*",
     "concurrently": "^8.2.2"
   }
 }

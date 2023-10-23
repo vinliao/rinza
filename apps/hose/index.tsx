@@ -1,28 +1,29 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { z } from "zod";
 import { createRoot } from "react-dom/client";
-import { useListenCast } from "../dist";
+import { useListenCast } from "@rinza/farcaster-hooks";
 
-// a place to manually test the hooks
+// TODO: messages/minute
 const App = () => {
+  // 
 	const fid = 4640;
 	const hash = "0x6fa14e4047bdf1181851537b062e4efbfddd3306";
-	const pageOption = { pageSize: 5 };
-	// const [data, isError, isLoading] = useUser({ fid });
-	// const [data, isError, isLoading] = useCastById({ fid, hash });
-	// const [data, isError, isLoading] = useCastsByFid({ fid, pageOption });
-	// const [data, isError, isLoading] = useCastsByParent({
-	// 	fid,
-	// 	hash,
-	// 	pageOption,
-	// });
-	const [casts, setCasts] = useState([]);
 
+	const NotifierEventSchema = z.object({
+		hubEventId: z.number(),
+		hash: z.string(),
+		fid: z.number(),
+		type: z.number(),
+	});
+	type NotifierEventType = z.infer<typeof NotifierEventSchema>;
+	const [events, setEvents] = useState<NotifierEventType[]>([]);
 	const [data, isError, isLoading] = useListenCast();
 
-	// dummy code
+  // biome-ignore lint: false positive
 	useEffect(() => {
 		if (data) {
-			setCasts((prevDataList) => [...prevDataList, data]);
+			const parsed = NotifierEventSchema.parse(data);
+			setEvents((prevDataList) => [...prevDataList, parsed]);
 		}
 	}, [data]);
 
@@ -36,8 +37,8 @@ const App = () => {
 			<div>
 				<h3>All Events:</h3>
 				<ul>
-					{casts.map((cast) => (
-						<li key={cast.hubEventId}>{JSON.stringify(cast)}</li>
+					{events.map((event) => (
+						<li key={event.hubEventId}>{JSON.stringify(event)}</li>
 					))}
 				</ul>
 			</div>
