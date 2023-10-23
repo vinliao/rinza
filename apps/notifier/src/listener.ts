@@ -1,36 +1,19 @@
-import { z } from "zod";
 import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
+import { z } from "zod";
 import emitter from "./emitter";
-import { clog, EventSchema } from "@rinza/utils";
+import { BufferSchema, clog } from "@rinza/utils";
 
-// TODO: handle event type > 1
 const eventHandler = (event: unknown) => {
-	const parsed = EventSchema.parse(event);
-	const castAddBody = parsed.mergeMessageBody.message.data.castAddBody;
-	const replyMentionFids = [
-		castAddBody.parentCastId?.fid,
-		...castAddBody.mentions,
-	];
-	clog("eventHandler/parsed", parsed);
+	clog("linkAddHandler/event", event);
 
-	for (const fid of replyMentionFids) {
-		clog("eventHandler/fid", fid);
-
-		emitter.emit(`reply-mention-${fid}`, {
-			hubEventId: parsed.id,
-			hash: parsed.mergeMessageBody.message.hash,
-			fid: parsed.mergeMessageBody.message.data.fid,
-		});
-
-		emitter.emit("all-cast", {
-			hubEventId: parsed.id,
-			hash: parsed.mergeMessageBody.message.hash,
-			fid: parsed.mergeMessageBody.message.data.fid,
-		});
-	}
+	const hubEventId = z.number().parse(event.id);
+	const hash = BufferSchema.parse(event.mergeMessageBody.message.hash);
+	const fid = z.number().parse(event.mergeMessageBody.message.data.fid);
+	const type = z.number().parse(event.mergeMessageBody.message.data.type);
+	emitter.emit("all-event", { hubEventId, hash, fid, type });
 };
 
-const hubRpcEndpoint = "nemes.farcaster.xyz:2283";
+const hubRpcEndpoint = "20eef7.hubs.neynar.com:2283";
 const client = getSSLHubRpcClient(hubRpcEndpoint);
 
 client.$.waitForReady(Date.now() + 5000, async (e) => {
@@ -55,7 +38,7 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
 	const stream = subscribeResult.value;
 	for await (const event of stream) {
 		clog("connect/event", event);
-		if (event.mergeMessageBody.message.data.type === 1) eventHandler(event);
+		eventHandler(event);
 	}
 	client.close();
 });

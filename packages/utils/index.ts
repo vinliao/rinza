@@ -417,3 +417,49 @@ const embedMentions = (c: any, fidUsernameMap: Map<number, string>) => {
 	}
 	return { ...c, text: tmp };
 };
+
+// =====================================================================================
+// const maps
+// =====================================================================================
+
+export const hashSchemeMap = new Map([
+	[0, "HASH_SCHEME_NONE"],
+	[1, "HASH_SCHEME_BLAKE3"],
+]);
+
+export const signatureSchemeMap = new Map([
+	[0, "SIGNATURE_SCHEME_NONE"],
+	[1, "SIGNATURE_SCHEME_ED25519"],
+	[2, "SIGNATURE_SCHEME_EIP712"],
+]);
+
+export const messageTypeMap = new Map([
+	[0, "MESSAGE_TYPE_NONE"],
+	[1, "MESSAGE_TYPE_CAST_ADD"],
+	[2, "MESSAGE_TYPE_CAST_REMOVE"],
+	[3, "MESSAGE_TYPE_REACTION_ADD"],
+	[4, "MESSAGE_TYPE_REACTION_REMOVE"],
+	[5, "MESSAGE_TYPE_LINK_ADD"],
+	[6, "MESSAGE_TYPE_LINK_REMOVE"],
+	[7, "MESSAGE_TYPE_VERIFICATION_ADD_ETH_ADDRESS"],
+	[8, "MESSAGE_TYPE_VERIFICATION_REMOVE"],
+	[9, "MESSAGE_TYPE_SIGNER_ADD"],
+	[10, "MESSAGE_TYPE_SIGNER_REMOVE"],
+	[11, "MESSAGE_TYPE_USER_DATA_ADD"],
+	[12, "MESSAGE_TYPE_USERNAME_PROOF"],
+]);
+
+export const userDataTypeMap = new Map([
+	[0, "USER_DATA_TYPE_NONE"],
+	[1, "USER_DATA_TYPE_PFP"],
+	[2, "USER_DATA_TYPE_DISPLAY"],
+	[3, "USER_DATA_TYPE_BIO"],
+	[5, "USER_DATA_TYPE_URL"],
+	[6, "USER_DATA_TYPE_USERNAME"],
+]);
+
+export const reactionTypeMap = new Map([
+	[0, "REACTION_TYPE_NONE"],
+	[1, "REACTION_TYPE_LIKE"],
+	[2, "REACTION_TYPE_RECAST"],
+]);

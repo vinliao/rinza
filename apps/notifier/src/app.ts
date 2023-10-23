@@ -3,7 +3,6 @@ import emitter from "./emitter";
 
 const app = express();
 
-// enable cors
 // TODO: figure out local-only cors
 app.use((req, res, next) => {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -17,9 +16,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/listen", async (req, res) => {
-	const fid = req.query.fid;
-	const eventKey = fid ? `reply-mention-${fid}` : "all-cast";
+	const eventKey = "all-event";
 	const timeout = Math.min(Number(req.query.timeout) || 60, 60) * 1000;
+
+	// to listen to notification:
+	// - if type 1
+	// and mention contains... then emit reply-mention-fid
+	// but do it right here, y'know
 
 	const data = await Promise.race([
 		new Promise((resolve) => {
@@ -37,6 +40,8 @@ app.get("/listen", async (req, res) => {
 
 	res.send(data);
 });
+
+// TODO: listen cast reply mention
 
 app.get("/listen-test", function poll(req, res) {
 	setTimeout(() => {
