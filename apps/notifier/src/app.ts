@@ -1,5 +1,5 @@
 import express from "express";
-import emitter from "./emitter";
+import { emitter, rollingLog } from "./shared";
 
 const app = express();
 
@@ -41,8 +41,6 @@ app.get("/listen", async (req, res) => {
 	res.send(data);
 });
 
-// TODO: listen cast reply mention
-
 app.get("/listen-test", function poll(req, res) {
 	setTimeout(() => {
 		const hubEventId = Math.random().toString(36).substring(2, 42);
@@ -52,6 +50,13 @@ app.get("/listen-test", function poll(req, res) {
 	}, 2000);
 });
 
+app.get("/recent-events", async (req, res) => {
+	const lines = rollingLog.getLatestLines(100);
+	return res.send(lines);
+});
+
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
 });
+
+// TODO: listen cast reply mention

@@ -170,3 +170,4 @@ dist
 
 app.log
 playground.js
+log.ndjson

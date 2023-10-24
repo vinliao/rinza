@@ -1,17 +1,21 @@
 import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
 import { z } from "zod";
-import emitter from "./emitter";
+import { emitter, rollingLog } from "./shared";
 import { BufferSchema, clog } from "@rinza/utils";
 
 const eventHandler = (event: unknown) => {
-	clog("linkAddHandler/event", event);
+	clog("eventHandler/event", event);
 
-	const hubEventId = z.number().parse(event.id);
-	const hash = BufferSchema.parse(event.mergeMessageBody.message.hash);
-	const fid = z.number().parse(event.mergeMessageBody.message.data.fid);
-	const type = z.number().parse(event.mergeMessageBody.message.data.type);
-	const timestamp = z.number().parse(event.mergeMessageBody.message.data.timestamp);
-	emitter.emit("all-event", { hubEventId, hash, fid, type, timestamp });
+	const parsed = {
+		hubEventId: z.number().parse(event.id),
+		hash: BufferSchema.parse(event.mergeMessageBody.message.hash),
+		fid: z.number().parse(event.mergeMessageBody.message.data.fid),
+		type: z.number().parse(event.mergeMessageBody.message.data.type),
+		timestamp: z.number().parse(event.mergeMessageBody.message.data.timestamp),
+	};
+
+  rollingLog.appendLine(JSON.stringify(parsed));
+	emitter.emit("all-event", parsed);
 };
 
 const hubRpcEndpoint = "20eef7.hubs.neynar.com:2283";
