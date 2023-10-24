@@ -1,15 +1,11 @@
 import express from "express";
+import cors from "cors";
 import { emitter, rollingLog } from "./shared";
 
 const app = express();
-
-// TODO: figure out local-only cors
-app.use((req, res, next) => {
-	res.header("Access-Control-Allow-Origin", "*");
-	next();
-});
-
 const port = process.env.PORT || 3000;
+// TODO: should only be enabled in dev!
+app.use(cors());
 
 app.get("/", (req, res) => {
 	res.send({ message: "Hello, world!" });
@@ -51,8 +47,7 @@ app.get("/listen-test", function poll(req, res) {
 });
 
 app.get("/recent-events", async (req, res) => {
-	const lines = rollingLog.getLatestLines(100);
-	return res.send(lines);
+	return res.send(rollingLog.getLatestLines(10));
 });
 
 app.listen(port, () => {

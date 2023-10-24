@@ -14,7 +14,7 @@ const eventHandler = (event: unknown) => {
 		timestamp: z.number().parse(event.mergeMessageBody.message.data.timestamp),
 	};
 
-  rollingLog.appendLine(JSON.stringify(parsed));
+	rollingLog.appendLine(parsed);
 	emitter.emit("all-event", parsed);
 };
 
