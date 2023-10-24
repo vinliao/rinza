@@ -88,6 +88,7 @@ export const useEvents = (
 
 	useEffect(() => {
 		setIsLoading(true);
+
 		const fetchData = async () => {
 			try {
 				const response = await fetch(`${url}/recent-events`);
@@ -109,7 +110,6 @@ export const useEvents = (
 					const result = await response.json();
 					const parsed = NotifierEventSchema.parse(result);
 					setData((prevData) => [...prevData, parsed]);
-
 					await new Promise((res) => setTimeout(res, 1000));
 				} catch (error) {
 					setIsError(true);
@@ -119,10 +119,9 @@ export const useEvents = (
 			setIsLoading(false);
 		};
 
+		fetchData();
 		if (shouldListen) {
 			fetchListenData();
-		} else {
-			fetchData();
 		}
 
 		return () => {
