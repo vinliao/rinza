@@ -1,45 +1,38 @@
-import { useState, useEffect } from "react";
-import { z } from "zod";
 import { createRoot } from "react-dom/client";
-import { useListenCast } from "@rinza/farcaster-hooks";
+import { useEvents } from "@rinza/farcaster-hooks";
+import { z } from "zod";
+import utf8 from "utf8";
+import base64 from "base-64";
 
-// TODO: messages/minute
+export const NotifierEventSchema = z.object({
+	hubEventId: z.number(),
+	hash: z.string(),
+	fid: z.number(),
+	type: z.number(),
+	timestamp: z.number(),
+	raw: z.string(),
+});
+export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
+
 const App = () => {
-  // 
-	const fid = 4640;
-	const hash = "0x6fa14e4047bdf1181851537b062e4efbfddd3306";
-
-	const NotifierEventSchema = z.object({
-		hubEventId: z.number(),
-		hash: z.string(),
-		fid: z.number(),
-		type: z.number(),
-    timestamp: z.number(),
-	});
-	type NotifierEventType = z.infer<typeof NotifierEventSchema>;
-	const [events, setEvents] = useState<NotifierEventType[]>([]);
-	const [data, isError, isLoading] = useListenCast();
-
-  // biome-ignore lint: false positive
-	useEffect(() => {
-		if (data) {
-			const parsed = NotifierEventSchema.parse(data);
-			setEvents((prevDataList) => [...prevDataList, parsed]);
-		}
-	}, [data]);
+	const [data, isError, isLoading] = useEvents({ shouldListen: true });
+	let lastEvent;
+	if (Array.isArray(data) && data.length > 0) {
+		lastEvent = data[data.length - 1];
+		lastEvent = utf8.decode(base64.decode(lastEvent.raw));
+	}
 
 	return (
 		<div>
 			<p>user!</p>
-			{/* TODO: this page should test all the hooks, display all the stuff */}
 			{isLoading && <div>Loading...</div>}
 			{isError && <div>Error</div>}
-			{data && <div>Latest Event: {JSON.stringify(data)}</div>}
+			{data && <div>Latest Event: {lastEvent}</div>}
 			<div>
 				<h3>All Events:</h3>
 				<ul>
-					{events.map((event) => (
-						<li key={event.hubEventId}>{JSON.stringify(event)}</li>
+					{data.map((event, index) => (
+						<li key={event.hubEventId || index}>{JSON.stringify(event)}</li>
 					))}
 				</ul>
 			</div>
