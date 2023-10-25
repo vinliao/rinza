@@ -7,12 +7,13 @@
     "build": "tsup src/index.ts --format cjs --out-dir dist",
     "build:watch": "npm run build -- --watch",
     "serve": "pm2 start pm2.config.js",
-    "dev": "concurrently \"npm run build:watch\" \"npm run serve\" && \"pm2 logs\""
+    "dev": "concurrently \"npm run build:watch\" \"npm run serve\""
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.10.9",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
     "zod": "^3.22.2"
   },
   "devDependencies": {

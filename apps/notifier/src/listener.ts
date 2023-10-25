@@ -2,6 +2,8 @@ import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
 import { z } from "zod";
 import { emitter, rollingLog } from "./shared";
 import { BufferSchema, clog } from "@rinza/utils";
+import base64 from "base-64";
+import utf8 from "utf8";
 
 const eventHandler = (event: unknown) => {
 	clog("eventHandler/event", event);
@@ -12,6 +14,7 @@ const eventHandler = (event: unknown) => {
 		fid: z.number().parse(event.mergeMessageBody.message.data.fid),
 		type: z.number().parse(event.mergeMessageBody.message.data.type),
 		timestamp: z.number().parse(event.mergeMessageBody.message.data.timestamp),
+		raw: base64.encode(utf8.encode(JSON.stringify(event))),
 	};
 
 	rollingLog.appendLine(parsed);
