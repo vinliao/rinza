@@ -7,23 +7,33 @@ export const BufferSchema = z.instanceof(Buffer).transform((buffer) => {
 export const sleep = (ms: number): Promise<void> =>
 	new Promise((resolve) => setTimeout(resolve, ms));
 
-export const NotifierEventSchema = z.object({
-	hubEventId: z.number(),
-	hash: z.string(),
+const CastIdSchema = z.object({
 	fid: z.number(),
-	type: z.number(),
-	timestamp: z.number(),
+	hash: BufferSchema,
 });
-export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
-const LinkBodySchema = z.object({ type: z.string(), targetFid: z.number() });
-const MessageSchema = z.object({
+const EmbedSchema = z.object({
+	url: z.string(),
+	castId: CastIdSchema,
+});
+
+// TODO: figure out how to dedupe
+// message type 1
+const CastAddMessageSchema = z.object({
 	data: z.object({
 		type: z.number(),
 		fid: z.number(),
 		timestamp: z.number(),
 		network: z.number(),
-		linkBody: LinkBodySchema,
+		castAddBody: z.object({
+			embedsDeprecated: z.array(z.string()),
+			mentions: z.array(z.number()),
+			parentCastId: CastIdSchema.optional(),
+			parentUrl: z.string().optional(),
+			text: z.string(),
+			mentionsPositions: z.array(z.number()),
+			embeds: z.array(EmbedSchema),
+		}),
 	}),
 	hash: BufferSchema,
 	hashScheme: z.number(),
@@ -31,6 +41,130 @@ const MessageSchema = z.object({
 	signatureScheme: z.number(),
 	signer: BufferSchema,
 });
+
+// message type 2
+const CastRemoveMessageSchema = z.object({
+	data: z.object({
+		type: z.number(),
+		fid: z.number(),
+		timestamp: z.number(),
+		network: z.number(),
+		castRemoveBody: z.object({
+			targetHash: BufferSchema,
+		}),
+	}),
+	hash: BufferSchema,
+	hashScheme: z.number(),
+	signature: BufferSchema,
+	signatureScheme: z.number(),
+	signer: BufferSchema,
+});
+
+// message type 3 and 4
+const ReactionMessageSchema = z.object({
+	data: z.object({
+		type: z.number(),
+		fid: z.number(),
+		timestamp: z.number(),
+		network: z.number(),
+		reactionBody: z.object({
+			type: z.number(),
+			targetCastId: CastIdSchema,
+			targetUrl: z.string().optional(),
+		}),
+	}),
+	hash: BufferSchema,
+	hashScheme: z.number(),
+	signature: BufferSchema,
+	signatureScheme: z.number(),
+	signer: BufferSchema,
+});
+
+// message type 5 and 6
+const LinkMessageSchema = z.object({
+	data: z.object({
+		type: z.number(),
+		fid: z.number(),
+		timestamp: z.number(),
+		network: z.number(),
+		linkBody: z.object({
+			type: z.string(),
+			targetFid: z.number(),
+		}),
+	}),
+	hash: BufferSchema,
+	hashScheme: z.number(),
+	signature: BufferSchema,
+	signatureScheme: z.number(),
+	signer: BufferSchema,
+});
+
+// message type 7
+const VerificationAddEthAddressBodySchema = z.object({
+	data: z.object({
+		type: z.number(),
+		fid: z.number(),
+		timestamp: z.number(),
+		network: z.number(),
+		verificationAddEthAddressBody: z.object({
+			address: BufferSchema,
+			ethSignature: BufferSchema,
+			blockHash: BufferSchema,
+		}),
+	}),
+	hash: BufferSchema,
+	hashScheme: z.number(),
+	signature: BufferSchema,
+	signatureScheme: z.number(),
+	signer: BufferSchema,
+});
+
+// message type 8
+const VerificationRemoveBodySchema = z.object({
+	data: z.object({
+		type: z.number(),
+		fid: z.number(),
+		timestamp: z.number(),
+		network: z.number(),
+		verificationRemoveBody: z.object({
+			address: BufferSchema,
+		}),
+	}),
+	hash: BufferSchema,
+	hashScheme: z.number(),
+	signature: BufferSchema,
+	signatureScheme: z.number(),
+	signer: BufferSchema,
+});
+
+// message type 11
+const UserDataAddBodySchema = z.object({
+	data: z.object({
+		type: z.number(),
+		fid: z.number(),
+		timestamp: z.number(),
+		network: z.number(),
+		userDataAddBody: z.object({
+			type: z.number(),
+			value: z.string(),
+		}),
+	}),
+	hash: BufferSchema,
+	hashScheme: z.number(),
+	signature: BufferSchema,
+	signatureScheme: z.number(),
+	signer: BufferSchema,
+});
+
+const MessageSchema = z.union([
+	CastAddMessageSchema,
+	CastRemoveMessageSchema,
+	ReactionMessageSchema,
+	LinkMessageSchema,
+	VerificationAddEthAddressBodySchema,
+	VerificationRemoveBodySchema,
+	UserDataAddBodySchema,
+]);
 
 export const HubEventSchema = z.object({
 	type: z.number(),
@@ -41,6 +175,18 @@ export const HubEventSchema = z.object({
 	}),
 });
 export type HubEventType = z.infer<typeof HubEventSchema>;
+
+// key information should be flat, easier access
+// extra info is provided on the message
+export const NotifierEventSchema = z.object({
+	hubEventId: z.number(),
+	hash: z.string(),
+	fid: z.number(),
+	type: z.number(),
+	timestamp: z.number(),
+	raw: HubEventSchema,
+});
+export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
 // // =====================================================================================
 // // clients

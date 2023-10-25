@@ -1,11 +1,6 @@
 import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
-import { z } from "zod";
 import { emitter, rollingLog } from "./shared";
-import {
-	BufferSchema,
-	HubEventSchema,
-	HubEventType as HET,
-} from "@rinza/utils";
+import { HubEventSchema, HubEventType as HET } from "@rinza/utils";
 import base64 from "base-64";
 import utf8 from "utf8";
 import { appendFile } from "fs";
@@ -70,10 +65,10 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
 
 	const stream = subscribeResult.value;
 	for await (const event of stream) {
-		// clog("connect/event", event);
-		const type = event.mergeMessageBody.message.data.type;
-		if (type !== 5) continue;
-		const parsedTry = HubEventSchema.safeParse(event);
+		// clog("subscribe/event", event);
+		// const type = event.mergeMessageBody.message.data.type;
+		// if (type !== 1) continue;
+		const parsedTry = HubEventSchema.passthrough().safeParse(event);
 		if (!parsedTry.success) clog("subscribe/parse", parsedTry.error);
 		else eventHandler(parsedTry.data);
 	}
