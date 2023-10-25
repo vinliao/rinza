@@ -10,6 +10,7 @@ export const NotifierEventSchema = z.object({
 	fid: z.number(),
 	type: z.number(),
 	timestamp: z.number(),
+	description: z.string(),
 	raw: z.string(),
 });
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
@@ -32,7 +33,7 @@ const App = () => {
 				<h3>All Events:</h3>
 				<ul>
 					{data.map((event, index) => (
-						<li key={event.hubEventId || index}>{JSON.stringify(event)}</li>
+						<li key={event.hubEventId || index}>{event.description}</li>
 					))}
 				</ul>
 			</div>

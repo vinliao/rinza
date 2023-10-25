@@ -173,7 +173,7 @@ export const HubEventMergeSchema = z.object({
 		deletedMessages: z.array(MessageSchema),
 	}),
 });
-export type HubEventType = z.infer<typeof HubEventMergeSchema>;
+export type HubEventMergeType = z.infer<typeof HubEventMergeSchema>;
 
 // TODO: untested
 export const HubEventPruneSchema = z.object({
@@ -202,15 +202,16 @@ export type HubEventRevokeType = z.infer<typeof HubEventRevokeSchema>;
 // ]);
 
 // key information should be flat, easier access, esp with sql
-export const NotifierEventSchema = z.object({
-	hubEventId: z.number(),
-	hash: z.string(),
-	fid: z.number(),
-	type: z.number(),
-	timestamp: z.number(),
-	raw: HubEventMergeSchema,
-});
-export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
+// export const NotifierEventSchema = z.object({
+// 	hubEventId: z.number(),
+// 	hash: z.string(),
+// 	fid: z.number(),
+// 	type: z.number(),
+// 	timestamp: z.number(),
+// 	description: z.string(),
+// 	raw: HubEventMergeSchema,
+// });
+// export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
 // const sortByTimestamp = (cs: any[]) => {
 // 	cs.sort((a, b) => a.timestamp - b.timestamp);

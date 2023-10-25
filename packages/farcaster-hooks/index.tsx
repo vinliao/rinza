@@ -7,10 +7,12 @@ export const NotifierEventSchema = z.object({
 	fid: z.number(),
 	type: z.number(),
 	timestamp: z.number(),
+	description: z.string(),
 	raw: z.string(),
 });
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
+// FIX: if not typed, data is boolean | NotifierEventType[]
 export const useEvents = ({
 	url = "http://localhost:3000",
 	shouldListen = false,
