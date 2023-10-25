@@ -14,7 +14,6 @@ const CastIdSchema = z.object({
 
 const EmbedSchema = z.object({
 	url: z.string(),
-	castId: CastIdSchema,
 });
 
 // TODO: figure out how to dedupe
@@ -100,7 +99,7 @@ const LinkMessageSchema = z.object({
 });
 
 // message type 7
-const VerificationAddEthAddressBodySchema = z.object({
+const VerificationAddEthAddressSchema = z.object({
 	data: z.object({
 		type: z.number(),
 		fid: z.number(),
@@ -120,7 +119,7 @@ const VerificationAddEthAddressBodySchema = z.object({
 });
 
 // message type 8
-const VerificationRemoveBodySchema = z.object({
+const VerificationRemoveSchema = z.object({
 	data: z.object({
 		type: z.number(),
 		fid: z.number(),
@@ -138,13 +137,13 @@ const VerificationRemoveBodySchema = z.object({
 });
 
 // message type 11
-const UserDataAddBodySchema = z.object({
+const UserDataAddSchema = z.object({
 	data: z.object({
 		type: z.number(),
 		fid: z.number(),
 		timestamp: z.number(),
 		network: z.number(),
-		userDataAddBody: z.object({
+		userDataBody: z.object({
 			type: z.number(),
 			value: z.string(),
 		}),
@@ -161,12 +160,12 @@ const MessageSchema = z.union([
 	CastRemoveMessageSchema,
 	ReactionMessageSchema,
 	LinkMessageSchema,
-	VerificationAddEthAddressBodySchema,
-	VerificationRemoveBodySchema,
-	UserDataAddBodySchema,
+	VerificationAddEthAddressSchema,
+	VerificationRemoveSchema,
+	UserDataAddSchema,
 ]);
 
-export const HubEventSchema = z.object({
+export const HubEventMergeSchema = z.object({
 	type: z.number(),
 	id: z.number(),
 	mergeMessageBody: z.object({
@@ -174,7 +173,25 @@ export const HubEventSchema = z.object({
 		deletedMessages: z.array(MessageSchema),
 	}),
 });
-export type HubEventType = z.infer<typeof HubEventSchema>;
+export type HubEventType = z.infer<typeof HubEventMergeSchema>;
+
+// TODO: untested
+const HubEventPruneSchema = z.object({
+	type: z.number(),
+	id: z.number(),
+	pruneMessageBody: z.object({
+		message: MessageSchema,
+	}),
+});
+
+// TODO: untested
+const HubEventRevokeSchema = z.object({
+	type: z.number(),
+	id: z.number(),
+	revokeMessageBody: z.object({
+		message: MessageSchema,
+	}),
+});
 
 // key information should be flat, easier access
 // extra info is provided on the message
@@ -184,7 +201,7 @@ export const NotifierEventSchema = z.object({
 	fid: z.number(),
 	type: z.number(),
 	timestamp: z.number(),
-	raw: HubEventSchema,
+	raw: HubEventMergeSchema,
 });
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 

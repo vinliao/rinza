@@ -1,6 +1,6 @@
 import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
 import { emitter, rollingLog } from "./shared";
-import { HubEventSchema, HubEventType as HET } from "@rinza/utils";
+import { HubEventMergeSchema } from "@rinza/utils";
 import base64 from "base-64";
 import utf8 from "utf8";
 import { appendFile } from "fs";
@@ -23,22 +23,6 @@ const clog = (where: string, data: unknown): void => {
 
 const hubRpcEndpoint = "20eef7.hubs.neynar.com:2283";
 const client = getSSLHubRpcClient(hubRpcEndpoint);
-
-const eventHandler = async (event: HET) => {
-	clog("eventHandler/event", event);
-
-	const payload = {
-		hubEventId: event.id,
-		hash: event.mergeMessageBody.message.hash,
-		fid: event.mergeMessageBody.message.data.fid,
-		type: event.mergeMessageBody.message.data.type,
-		timestamp: event.mergeMessageBody.message.data.timestamp,
-		raw: base64.encode(utf8.encode(JSON.stringify(event))),
-	};
-
-	rollingLog.appendLine(payload);
-	emitter.emit("all-event", payload);
-};
 
 client.$.waitForReady(Date.now() + 5000, async (e) => {
 	if (e) {
@@ -65,12 +49,27 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
 
 	const stream = subscribeResult.value;
 	for await (const event of stream) {
-		// clog("subscribe/event", event);
-		// const type = event.mergeMessageBody.message.data.type;
-		// if (type !== 1) continue;
-		const parsedTry = HubEventSchema.passthrough().safeParse(event);
-		if (!parsedTry.success) clog("subscribe/parse", parsedTry.error);
-		else eventHandler(parsedTry.data);
+		const parsedTry = HubEventMergeSchema.safeParse(event);
+		if (!parsedTry.success) {
+			clog("subscribe/event", event);
+			clog("subscribe/parsedTry.error", parsedTry.error);
+			return;
+		}
+
+		const parsed = parsedTry.data;
+		// flatten data for easier access, esp when stuffed to sqlite later on
+		const payload = {
+			hubEventId: parsed.id,
+			hash: parsed.mergeMessageBody.message.hash,
+			fid: parsed.mergeMessageBody.message.data.fid,
+			type: parsed.mergeMessageBody.message.data.type,
+			timestamp: parsed.mergeMessageBody.message.data.timestamp,
+			raw: base64.encode(utf8.encode(JSON.stringify(parsed))),
+		};
+
+		clog("subscribe/payload", payload);
+		rollingLog.appendLine(payload);
+		emitter.emit("all-event", payload);
 	}
 	client.close();
 });
