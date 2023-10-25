@@ -1,7 +1,12 @@
 {
   "name": "rinza",
+  "devDependencies": {
+    "@biomejs/biome": "^1.2.2",
+    "@types/base-64": "^1.0.1",
+    "@types/utf8": "^3.0.2",
+    "concurrently": "^8.2.2"
+  },
   "private": true,
-  "workspaces": ["packages/*"],
   "scripts": {
     "fmt": "bunx biome format apps --write && bunx biome format packages --write",
     "notifier:build": "cd apps/notifier && npm run build",
@@ -11,8 +16,9 @@
     "farcaster-hooks:serve": "cd packages/farcaster-hooks && npm run serve",
     "farcaster-hooks:dev": "cd packages/farcaster-hooks && npm run dev"
   },
-  "devDependencies": {
-    "@biomejs/biome": "^1.2.2",
-    "concurrently": "^8.2.2"
+  "workspaces": ["packages/*"],
+  "dependencies": {
+    "base-64": "^1.0.0",
+    "utf8": "^3.0.0"
   }
 }
