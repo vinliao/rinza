@@ -14,7 +14,7 @@ export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 export const useEvents = ({
 	url = "http://localhost:3000",
 	shouldListen = false,
-}) => {
+}): [NotifierEventType[], boolean, boolean] => {
 	const [data, setData] = useState<NotifierEventType[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isError, setIsError] = useState(false);
@@ -43,8 +43,8 @@ export const useEvents = ({
 					if (!response.ok) throw new Error("Network response was not ok");
 					const result = await response.json();
 					const parsed = NotifierEventSchema.parse(result);
-					setData((prevData) => [...prevData, parsed]);
-					await new Promise((res) => setTimeout(res, 1000));
+					setData((prevData) => [parsed, ...prevData]);
+					// await new Promise((res) => setTimeout(res, 1000));
 				} catch (error) {
 					setIsError(true);
 					shouldPoll.current = false;
