@@ -176,13 +176,14 @@ export const HubEventMergeSchema = z.object({
 export type HubEventType = z.infer<typeof HubEventMergeSchema>;
 
 // TODO: untested
-const HubEventPruneSchema = z.object({
+export const HubEventPruneSchema = z.object({
 	type: z.number(),
 	id: z.number(),
 	pruneMessageBody: z.object({
 		message: MessageSchema,
 	}),
 });
+export type HubEventPruneType = z.infer<typeof HubEventPruneSchema>;
 
 // TODO: untested
 const HubEventRevokeSchema = z.object({
@@ -192,9 +193,15 @@ const HubEventRevokeSchema = z.object({
 		message: MessageSchema,
 	}),
 });
+export type HubEventRevokeType = z.infer<typeof HubEventRevokeSchema>;
 
-// key information should be flat, easier access
-// extra info is provided on the message
+// export const HubEventSchema = z.union([
+// 	HubEventMergeSchema,
+// 	HubEventPruneSchema,
+// 	HubEventRevokeSchema,
+// ]);
+
+// key information should be flat, easier access, esp with sql
 export const NotifierEventSchema = z.object({
 	hubEventId: z.number(),
 	hash: z.string(),
@@ -204,90 +211,6 @@ export const NotifierEventSchema = z.object({
 	raw: HubEventMergeSchema,
 });
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
-
-// // =====================================================================================
-// // clients
-// // =====================================================================================
-
-// export const warpcast = (apiKey: string) => {
-// 	const cast = async (text: string, parent?: unknown) => {
-// 		const url = "https://api.warpcast.com/v2/casts";
-// 		const headers = {
-// 			accept: "application/json",
-// 			authorization: `Bearer ${apiKey}`,
-// 			"Content-Type": "application/json",
-// 		};
-
-// 		const body = JSON.stringify({ text, parent: { hash: parent?.hash } });
-// 		const response = await fetch(url, { method: "POST", headers, body });
-// 		const data = await response.json();
-// 		clog("warpcast/cast", data);
-// 		return data;
-// 	};
-
-// 	const remove = async (hash: string) => {
-// 		const url = "https://api.warpcast.com/v2/casts";
-// 		const headers = {
-// 			accept: "application/json",
-// 			authorization: `Bearer ${apiKey}`,
-// 			"Content-Type": "application/json",
-// 		};
-
-// 		const body = JSON.stringify({ castHash: hash });
-// 		const response = await fetch(url, { method: "DELETE", headers, body });
-// 		const data = await response.json();
-// 		clog("warpcast/remove", data);
-// 		return data;
-// 	};
-
-// 	return { cast, remove };
-// };
-
-// export const neynar = (signerUUID: string, apiKey: string) => {
-// 	const cast = async (text: string, parent?: unknown) => {
-// 		const url = "https://api.neynar.com/v2/farcaster/cast";
-// 		const headers = { api_key: apiKey, "Content-Type": "application/json" };
-// 		const body = JSON.stringify({
-// 			signer_uuid: signerUUID,
-// 			text: text,
-// 			parent: parent?.hash,
-// 		});
-
-// 		const response = await fetch(url, { method: "POST", headers, body });
-// 		const data = await response.json();
-// 		clog("neynar/cast", data);
-// 		return data;
-// 	};
-
-// 	const remove = async (hash: string) => {
-// 		const url = "https://api.neynar.com/v2/farcaster/cast";
-// 		const headers = { api_key: apiKey, "Content-Type": "application/json" };
-// 		const body = JSON.stringify({
-// 			signer_uuid: signerUUID,
-// 			target_hash: hash,
-// 		});
-
-// 		const response = await fetch(url, { method: "DELETE", headers, body });
-// 		const data = await response.json();
-// 		clog("neynar/remove", data);
-// 		return data;
-// 	};
-
-// 	return { cast, remove };
-// };
-
-// // TODO: where's parent_url
-// export const extractCastById = (c: z.infer<typeof CastByIdSchema>) => ({
-// 	hash: c.hash,
-// 	parentHash: c.data.castAddBody.parentCastId?.hash,
-// 	parentFid: c.data.castAddBody.parentCastId?.fid,
-// 	fid: c.data.fid,
-// 	timestamp: c.data.timestamp,
-// 	text: c.data.castAddBody.text,
-// 	mentions: c.data.castAddBody.mentions,
-// 	mentionsPositions: c.data.castAddBody.mentionsPositions,
-// 	embeds: c.data.castAddBody.embeds,
-// });
 
 // const sortByTimestamp = (cs: any[]) => {
 // 	cs.sort((a, b) => a.timestamp - b.timestamp);
