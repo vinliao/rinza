@@ -1,6 +1,6 @@
 import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
 import { emitter, rollingLog } from "./shared";
-import { HubEventMergeSchema } from "@rinza/utils";
+import { HubEventMergeSchema, userDataTypeMap } from "@rinza/utils";
 import base64 from "base-64";
 import utf8 from "utf8";
 import { z } from "zod";
@@ -27,28 +27,58 @@ const makeDescription = (event: z.infer<typeof HubEventMergeSchema>) => {
 	const hash = event.mergeMessageBody.message.hash.slice(2, 10);
 	const type = event.mergeMessageBody.message.data.type;
 
-	// TODO: this should be stuff display-able in the frontend
-	switch (type) {
-		case 1:
-			return `fid:${fid} casted: ${hash}`;
-		case 2:
-			return `fid:${fid} cast removed: ${hash}`;
-		case 3:
-			return `fid:${fid} reacted: ${hash}`;
-		case 4:
-			return `fid:${fid} reaction removed: ${hash}`;
-		case 5:
-			return `fid:${fid} linked: ${hash}`;
-		case 6:
-			return `fid:${fid} link removed: ${hash}`;
-		case 7:
-			return `fid:${fid} eth address verified: ${hash}`;
-		case 8:
-			return `fid:${fid} eth address verification removed: ${hash}`;
-		case 11:
-			return `fid:${fid} changed user data: ${hash}`;
-		default:
-			return `unknown event type: ${type}, fid:${fid} hash:${hash}`;
+	// TODO: how to bulk pull fid:username mapping?
+	// TODO: fid:123 is placeholder for username and pfp
+	// TODO: cast:f12bc is placeholder for pfp, username, and trunc'd text
+	if (type === 1) {
+		return `fid:${fid} cast:${hash}`;
+	} else if (type === 2) {
+		return `fid:${fid} removed cast:${hash}`;
+	} else if (type === 3) {
+		// @ts-ignore
+		const reactionBody = event.mergeMessageBody.message.data.reactionBody;
+		const reactionType = reactionBody.type === 1 ? "liked" : "recasted";
+		const targetHash = reactionBody.targetCastId.hash.slice(2, 10);
+		return `fid:${fid} ${reactionType} cast:${targetHash}`;
+	} else if (type === 4) {
+		// @ts-ignore
+		const reactionBody = event.mergeMessageBody.message.data.reactionBody;
+		const reactionType = reactionBody.type === 1 ? "unliked" : "unrecasted";
+		const targetHash = reactionBody.targetCastId.hash.slice(2, 10);
+		return `fid:${fid} ${reactionType} cast:${targetHash}`;
+	} else if (type === 5) {
+		// @ts-ignore
+		const linkBody = event.mergeMessageBody.message.data.linkBody;
+		const linkType = linkBody.type; // string, not enum
+		const targetFid = linkBody.targetFid;
+		return `fid:${fid} link:${linkType} fid:${targetFid}`;
+	} else if (type === 6) {
+		// @ts-ignore
+		const linkBody = event.mergeMessageBody.message.data.linkBody;
+		const linkType = linkBody.type; // string, not enum
+		const targetFid = linkBody.targetFid;
+		return `fid:${fid} removed link:${linkType} fid:${targetFid}`;
+	} else if (type === 7) {
+		// @ts-ignore
+		const verificationAddEthAddressBody =
+			event.mergeMessageBody.message.data.verificationAddEthAddressBody;
+		const address = verificationAddEthAddressBody.address.slice(2, 10);
+		const blockHash = verificationAddEthAddressBody.blockHash.slice(2, 10);
+		return `fid:${fid} verified addr:${address} on block:${blockHash}`;
+	} else if (type === 8) {
+		// @ts-ignore
+		const verificationRemoveBody =
+			event.mergeMessageBody.message.data.verificationRemoveBody;
+		const address = verificationRemoveBody.address.slice(2, 10);
+		return `fid:${fid} removed addr:${address} verification`;
+	} else if (type === 11) {
+		// @ts-ignore
+		const userDataBody = event.mergeMessageBody.message.data.userDataBody;
+		const type = userDataBody.type;
+		const value = userDataBody.value;
+		return `fid:${fid} updated ${userDataTypeMap.get(type)} to ${value}`;
+	} else {
+		return `unknown event type: ${type}, fid:${fid} hash:${hash}`;
 	}
 };
 
