@@ -5,6 +5,23 @@ import utf8 from "utf8";
 import base64 from "base-64";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+
+const messageTypeMap = new Map([
+	[0, "NONE"],
+	[1, "CAST"],
+	[2, "CAST_REMOVE"],
+	[3, "REACTION"],
+	[4, "REACTION_REMOVE"],
+	[5, "LINK"],
+	[6, "LINK_REMOVE"],
+	[7, "VERIFICATION"],
+	[8, "VERIFICATION_REMOVE"],
+	// [9, "SIGNER_ADD"],
+	// [10, "SIGNER_REMOVE"],
+	[11, "USER_DATA"],
+	[12, "USERNAME_PROOF"],
+]);
 
 export const NotifierEventSchema = z.object({
 	hubEventId: z.number(),
@@ -21,13 +38,16 @@ const App = () => {
 	const [data, isError, isLoading] = useEvents({ shouldListen: true });
 
 	return (
-		<ScrollArea className="h-[200px] w-[600px] border p-4">
+		<ScrollArea className="h-screen w-[600px] border p-2">
 			<Table className="w-full">
 				<TableBody>
 					{Array.isArray(data) &&
 						data.map((event, index) => (
 							<TableRow key={event.hubEventId || index}>
-								<TableCell className="font-medium">
+								<TableCell>
+									<Badge variant={"secondary"} className="pl-0 pr-1 font-mono">
+										{messageTypeMap.get(event.type)}
+									</Badge>
 									{event.description}
 								</TableCell>
 							</TableRow>
