@@ -4,7 +4,10 @@
   "type": "module",
   "devDependencies": {
     "@types/node": "^20.8.9",
-    "bun-types": "latest"
+    "autoprefixer": "^10.4.16",
+    "bun-types": "latest",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

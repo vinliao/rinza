@@ -1,4 +1,5 @@
-import { createRoot } from "react-dom/client";
+import React from "react";
+import ReactDOM from "react-dom/client";
 import { useEvents } from "@rinza/farcaster-hooks";
 import { z } from "zod";
 import utf8 from "utf8";
@@ -6,6 +7,7 @@ import base64 from "base-64";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import "./globals.css";
 
 const messageTypeMap = new Map([
 	[0, "NONE"],
@@ -45,7 +47,10 @@ const App = () => {
 						data.map((event, index) => (
 							<TableRow key={event.hubEventId || index}>
 								<TableCell>
-									<Badge variant={"secondary"} className="pl-0 pr-1 font-mono">
+									<Badge
+										variant={"secondary"}
+										className="px-0.5 mr-1 font-mono"
+									>
 										{messageTypeMap.get(event.type)}
 									</Badge>
 									{event.description}
@@ -60,6 +65,9 @@ const App = () => {
 	);
 };
 
-const container = document.getElementById("app");
-const root = createRoot(container);
-root.render(<App />);
+// @ts-ignore
+ReactDOM.createRoot(document.getElementById("app")).render(
+	<React.StrictMode>
+		<App />
+	</React.StrictMode>,
+);
