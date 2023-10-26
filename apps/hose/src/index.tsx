@@ -3,6 +3,7 @@ import { useEvents } from "@rinza/farcaster-hooks";
 import { z } from "zod";
 import utf8 from "utf8";
 import base64 from "base-64";
+import { Button } from "@/components/ui/button";
 
 export const NotifierEventSchema = z.object({
 	hubEventId: z.number(),
@@ -31,6 +32,7 @@ const App = () => {
 			{data && <div>Latest Event: {lastEvent}</div>}
 			<div>
 				<h3>All Events:</h3>
+				<Button>Click me</Button>
 				<ul>
 					{data.map((event, index) => (
 						<li key={event.hubEventId || index}>{event.description}</li>
