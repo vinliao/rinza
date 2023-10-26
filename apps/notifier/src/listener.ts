@@ -22,6 +22,24 @@ const clog = (where: string, data: unknown): void => {
 	});
 };
 
+const embedMentions = (c: any) => {
+	const conds = [
+		!c.mentions,
+		!c.mentionsPositions,
+		c.mentions.length === 0,
+		c.mentionsPositions.length === 0,
+	];
+	if (conds.every(Boolean)) return c;
+
+	let tmp = c.text;
+	for (let i = c.mentionsPositions.length - 1; i >= 0; i--) {
+		const position = c.mentionsPositions[i];
+		const fid = c.mentions[i];
+		tmp = `${tmp.slice(0, position)}fid:${fid}${tmp.slice(position)}`;
+	}
+	return tmp;
+};
+
 const makeDescription = (event: z.infer<typeof HubEventMergeSchema>) => {
 	const fid = event.mergeMessageBody.message.data.fid;
 	const hash = event.mergeMessageBody.message.hash.slice(2, 10);
@@ -31,32 +49,29 @@ const makeDescription = (event: z.infer<typeof HubEventMergeSchema>) => {
 	// TODO: fid:123 is placeholder for username and pfp
 	// TODO: cast:f12bc is placeholder for pfp, username, and trunc'd text
 	if (type === 1) {
-		return `fid:${fid} cast:${hash}`;
+		// @ts-ignore
+		const cast = event.mergeMessageBody.message.data.castAddBody;
+		const text = embedMentions(cast);
+		return `fid:${fid} casted cast:${hash} ${text}`;
 	} else if (type === 2) {
-		return `fid:${fid} removed cast:${hash}`;
-	} else if (type === 3) {
+		// @ts-ignore
+		const cast = event.mergeMessageBody.deletedMessages[0].data.castAddBody;
+		const text = embedMentions(cast);
+		return `fid:${fid} deleted cast:${hash} ${text}`;
+	} else if (type === 3 || type === 4) {
 		// @ts-ignore
 		const reactionBody = event.mergeMessageBody.message.data.reactionBody;
-		const reactionType = reactionBody.type === 1 ? "liked" : "recasted";
+		const reactionType = reactionBody.type === 1 ? "like" : "recast";
 		const targetHash = reactionBody.targetCastId.hash.slice(2, 10);
-		return `fid:${fid} ${reactionType} cast:${targetHash}`;
-	} else if (type === 4) {
-		// @ts-ignore
-		const reactionBody = event.mergeMessageBody.message.data.reactionBody;
-		const reactionType = reactionBody.type === 1 ? "unliked" : "unrecasted";
-		const targetHash = reactionBody.targetCastId.hash.slice(2, 10);
-		return `fid:${fid} ${reactionType} cast:${targetHash}`;
-	} else if (type === 5) {
+		if (type === 3)
+			return `fid:${fid} reaction:${reactionType} cast:${targetHash}`;
+		return `fid:${fid} removed reaction:${reactionType} cast:${targetHash}`;
+	} else if (type === 5 || type === 6) {
 		// @ts-ignore
 		const linkBody = event.mergeMessageBody.message.data.linkBody;
 		const linkType = linkBody.type; // string, not enum
 		const targetFid = linkBody.targetFid;
-		return `fid:${fid} link:${linkType} fid:${targetFid}`;
-	} else if (type === 6) {
-		// @ts-ignore
-		const linkBody = event.mergeMessageBody.message.data.linkBody;
-		const linkType = linkBody.type; // string, not enum
-		const targetFid = linkBody.targetFid;
+		if (type === 5) return `fid:${fid} link:${linkType} fid:${targetFid}`;
 		return `fid:${fid} removed link:${linkType} fid:${targetFid}`;
 	} else if (type === 7) {
 		// @ts-ignore
