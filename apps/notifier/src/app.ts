@@ -1,9 +1,12 @@
 import express from "express";
 import cors from "cors";
-import { emitter, rollingLog } from "./shared";
+import { emitter, rollingLog } from "./singletons";
 import http from "http";
 import { Server } from "socket.io";
-import { NotifierEventSchema, NotifierEventType } from "@rinza/farcaster-hooks";
+import { NotifierEventType } from "@rinza/farcaster-hooks";
+
+import sqlite from "better-sqlite3";
+const db = new sqlite("log.db");
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -22,6 +25,12 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
+	const stmt = db.prepare(
+		"SELECT * FROM events ORDER BY timestamp DESC LIMIT 10",
+	);
+	const lastTenLogs = stmt.all();
+	socket.emit("initialLogs", JSON.stringify(lastTenLogs.reverse()));
+
 	const sendEventToClient = (data: NotifierEventType) => {
 		socket.emit("event", JSON.stringify(data));
 	};
@@ -31,6 +40,14 @@ io.on("connection", (socket) => {
 		emitter.off("all-event", sendEventToClient);
 		console.log("Client disconnected");
 	});
+});
+
+app.get("/logs", (req, res) => {
+	const stmt = db.prepare(
+		"SELECT * FROM events ORDER BY timestamp DESC LIMIT 10",
+	);
+	const lastTenLogs = stmt.all();
+	res.send(lastTenLogs);
 });
 
 server.listen(port, () => {

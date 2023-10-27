@@ -1,10 +1,26 @@
 import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
-import { emitter, rollingLog } from "./shared";
+import { emitter } from "./singletons";
 import { HubEventMergeSchema, userDataTypeMap } from "@rinza/utils";
 import base64 from "base-64";
 import utf8 from "utf8";
 import { z } from "zod";
 import { appendFile } from "fs";
+import sqlite from "better-sqlite3";
+
+const hubRpcEndpoint = "20eef7.hubs.neynar.com:2283";
+const client = getSSLHubRpcClient(hubRpcEndpoint);
+const db = new sqlite("log.db");
+db.exec(`
+  CREATE TABLE IF NOT EXISTS events (
+    hubEventId TEXT PRIMARY KEY,
+    hash TEXT,
+    fid INTEGER,
+    type INTEGER,
+    timestamp INTEGER,
+    description TEXT,
+    raw TEXT
+  );
+`);
 
 const clog = (where: string, data: unknown): void => {
 	const stringify = (data: unknown): string => {
@@ -97,9 +113,6 @@ const makeDescription = (event: z.infer<typeof HubEventMergeSchema>) => {
 	}
 };
 
-const hubRpcEndpoint = "20eef7.hubs.neynar.com:2283";
-const client = getSSLHubRpcClient(hubRpcEndpoint);
-
 client.$.waitForReady(Date.now() + 5000, async (e) => {
 	if (e) {
 		console.error(`Failed to connect to ${hubRpcEndpoint}:`, e);
@@ -145,7 +158,26 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
 		};
 
 		clog("subscribe/payload", payload);
-		rollingLog.appendLine(payload);
+		db.prepare(`
+      INSERT INTO events (
+        hubEventId,
+        hash,
+        fid,
+        type,
+        timestamp,
+        description,
+        raw
+      ) VALUES (
+        @hubEventId,
+        @hash,
+        @fid,
+        @type,
+        @timestamp,
+        @description,
+        @raw
+      )
+    `).run(payload);
+
 		emitter.emit("all-event", payload);
 	}
 	client.close();

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { z } from "zod";
 
 export const NotifierEventSchema = z.object({
@@ -13,103 +13,51 @@ export const NotifierEventSchema = z.object({
 });
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
-// FIX: if not typed, data is boolean | NotifierEventType[]
-export const useEventsOld = ({
-	url = "http://localhost:3000",
-	shouldListen = false,
-}): [NotifierEventType[], boolean, boolean] => {
+export const useEvents = () => {
+	const url = "http://localhost:3000";
 	const [data, setData] = useState<NotifierEventType[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isError, setIsError] = useState(false);
-	const shouldPoll = useRef(shouldListen);
+	const socketRef = useRef<Socket | null>(null);
 
 	useEffect(() => {
 		setIsLoading(true);
-
-		const fetchData = async () => {
-			try {
-				const response = await fetch(`${url}/recent-events`);
-				const result = await response.json();
-				const parsed = z.array(NotifierEventSchema).parse(result);
-				setData(parsed);
-			} catch (error) {
-				setIsError(true);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		const fetchListenData = async () => {
-			while (shouldPoll.current) {
-				try {
-					const response = await fetch(`${url}/listen`);
-					if (!response.ok) throw new Error("Network response was not ok");
-					const result = await response.json();
-					const parsed = NotifierEventSchema.parse(result);
-					setData((prevData) => [parsed, ...prevData]);
-					// await new Promise((res) => setTimeout(res, 1000));
-				} catch (error) {
-					setIsError(true);
-					shouldPoll.current = false;
-				}
-			}
-			setIsLoading(false);
-		};
-
-		fetchData();
-		if (shouldListen) {
-			fetchListenData();
-		}
-
-		return () => {
-			shouldPoll.current = false;
-		};
-	}, [url, shouldListen]);
-
-	return [data, isError, isLoading];
-};
-
-export const useEvents = ({
-	url = "http://localhost:3000",
-}): [NotifierEventType[], boolean, boolean] => {
-	const [data, setData] = useState<NotifierEventType[]>([]);
-	const [isLoading, setIsLoading] = useState(false);
-	const [isError, setIsError] = useState(false);
-	const socketRef = useRef<any>(null);
-
-	useEffect(() => {
-		setIsLoading(true);
-
-		// Initialize Socket.io connection
 		socketRef.current = io(url);
+
+		socketRef.current.on("initialLogs", (initialLogs: string) => {
+			const parsedLogs = JSON.parse(initialLogs);
+			setData((prevData) => [...parsedLogs, ...prevData]);
+			setIsLoading(false);
+		});
 
 		socketRef.current.on("connect", () => {
 			console.log("Socket.io connection established");
 			setIsLoading(false);
 		});
 
-		socketRef.current.on("connect_error", (error) => {
+		socketRef.current.on("connect_error", (error: Error) => {
 			console.log("Socket.io connection error:", error);
 			setIsError(true);
 		});
 
-		socketRef.current.on("event", (eventData) => {
-			try {
-				const parsed = NotifierEventSchema.parse(JSON.parse(eventData));
-				setData((prevData) => [parsed, ...prevData]);
-			} catch (error) {
-				console.error("Data parsing error:", error);
+		socketRef.current.on("event", (eventData: string) => {
+			const parsedTry = NotifierEventSchema.safeParse(JSON.parse(eventData));
+			if (!parsedTry.success) {
+				console.error("Data parsing error:", parsedTry.error);
 				setIsError(true);
+				return;
 			}
+			const parsed = parsedTry.data;
+			setData((prevData) => [parsed, ...prevData]);
 		});
 
+		// cleanup
 		return () => {
-			// Cleanup
 			if (socketRef.current) {
 				socketRef.current.disconnect();
 			}
 		};
-	}, [url]);
+	}, []);
 
 	return [data, isError, isLoading];
 };

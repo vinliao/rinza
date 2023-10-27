@@ -34,7 +34,7 @@ export const NotifierEventSchema = z.object({
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
 const App = () => {
-	const [data, isError, isLoading] = useEvents({ shouldListen: true });
+	const [data, isError, isLoading] = useEvents();
 
 	return (
 		<ScrollArea className="h-screen w-[600px] border p-2">
