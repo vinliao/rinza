@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { emitter, rollingLog } from "./singletons";
+import { emitter } from "./singletons";
 import http from "http";
 import { Server } from "socket.io";
 import { NotifierEventType } from "@rinza/farcaster-hooks";
@@ -29,7 +29,7 @@ io.on("connection", (socket) => {
 		"SELECT * FROM events ORDER BY timestamp DESC LIMIT 10",
 	);
 	const lastTenLogs = stmt.all();
-	socket.emit("initialLogs", JSON.stringify(lastTenLogs.reverse()));
+	socket.emit("initialLogs", JSON.stringify(lastTenLogs));
 
 	const sendEventToClient = (data: NotifierEventType) => {
 		socket.emit("event", JSON.stringify(data));

@@ -39,6 +39,18 @@ const App = () => {
 	return (
 		<ScrollArea className="h-screen w-[600px] border p-2">
 			<Table className="w-full">
+				<div className="flex items-center space-x-2">
+					{!isLoading && (
+						<span className="font-bold font-mono">Listening live events</span>
+					)}
+					{!isLoading && (
+						<span className="relative flex h-2 w-2">
+							<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75" />
+							<span className="relative inline-flex rounded-full h-2 w-2 bg-lime-500" />
+						</span>
+					)}
+				</div>
+
 				<TableBody>
 					{Array.isArray(data) &&
 						data.map((event, index) => (
