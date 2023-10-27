@@ -46,7 +46,7 @@ const App = () => {
 								<TableCell>
 									<Badge
 										variant={"secondary"}
-										className="px-0.5 mr-1 font-mono"
+										className="px-0.5 mr-1 font-mono font-bold"
 									>
 										{messageTypeMap.get(event.type)}
 									</Badge>

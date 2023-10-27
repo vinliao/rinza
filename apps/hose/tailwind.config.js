@@ -21,7 +21,7 @@ module.exports = {
 		extend: {
 			fontFamily: {
 				sans: ["'Roboto Condensed'", ...defaultTheme.fontFamily.sans],
-				mono: ["'DM Mono'", ...defaultTheme.fontFamily.mono],
+				mono: ["'IBM Plex Mono'", ...defaultTheme.fontFamily.mono],
 			},
 			colors: {
 				border: "hsl(var(--border))",
