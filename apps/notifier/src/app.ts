@@ -6,7 +6,7 @@ import { Server } from "socket.io";
 import { NotifierEventType } from "@rinza/farcaster-hooks";
 
 import sqlite from "better-sqlite3";
-const db = new sqlite("log.db");
+const db = new sqlite("log.sqlite");
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
 	const stmt = db.prepare(
-		"SELECT * FROM events ORDER BY timestamp DESC LIMIT 10",
+		"SELECT * FROM events ORDER BY timestamp DESC LIMIT 30",
 	);
 	const lastTenLogs = stmt.all();
 	socket.emit("initialLogs", JSON.stringify(lastTenLogs));

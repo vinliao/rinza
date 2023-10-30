@@ -7,12 +7,14 @@ import { z } from "zod";
 import { appendFile } from "fs";
 import sqlite from "better-sqlite3";
 
+const FARCASTER_EPOCH = 1609459200; // January 1, 2021 UTC
+
 const hubRpcEndpoint = "20eef7.hubs.neynar.com:2283";
 const client = getSSLHubRpcClient(hubRpcEndpoint);
-const db = new sqlite("log.db");
+const db = new sqlite("log.sqlite");
 db.exec(`
   CREATE TABLE IF NOT EXISTS events (
-    hubEventId TEXT PRIMARY KEY,
+    hubEventId INTEGER PRIMARY KEY,
     hash TEXT,
     fid INTEGER,
     type INTEGER,
@@ -146,13 +148,15 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
 		}
 
 		const parsed = parsedTry.data;
+		const timestamp =
+			Number(parsed.mergeMessageBody.message.data.timestamp) + FARCASTER_EPOCH;
 		// flatten data for easier access, esp when stuffed to sqlite later on
 		const payload = {
 			hubEventId: parsed.id,
 			hash: parsed.mergeMessageBody.message.hash,
 			fid: parsed.mergeMessageBody.message.data.fid,
 			type: parsed.mergeMessageBody.message.data.type,
-			timestamp: parsed.mergeMessageBody.message.data.timestamp,
+			timestamp,
 			description: makeDescription(parsed),
 			raw: base64.encode(utf8.encode(JSON.stringify(parsed))),
 		};

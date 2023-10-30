@@ -35,19 +35,25 @@ export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
 const App = () => {
 	const [data, isError, isLoading] = useEvents();
+	const latestHubEventId =
+		Array.isArray(data) && data.length > 0 ? data[0].hubEventId : undefined;
 
 	return (
 		<ScrollArea className="h-screen w-[600px] border p-2">
 			<Table className="w-full">
-				<div className="flex items-center space-x-2">
+				<div className="flex items-baseline space-x-2 mb-3">
 					{!isLoading && (
-						<span className="font-bold font-mono">Listening live events</span>
+						<span className="font-mono">Listening live events</span>
 					)}
 					{!isLoading && (
 						<span className="relative flex h-2 w-2">
-							<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75" />
-							<span className="relative inline-flex rounded-full h-2 w-2 bg-lime-500" />
+							<span className="animate-ping absolute inline-flex h-full w-full bg-lime-400 opacity-75 rounded-full" />
+							<span className="relative inline-flex h-2 w-2 bg-lime-500 rounded-full" />
 						</span>
+					)}
+					<div className="flex-1" />
+					{latestHubEventId && (
+						<span>Latest hubEventId: {latestHubEventId}</span>
 					)}
 				</div>
 
