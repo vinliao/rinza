@@ -2,6 +2,10 @@
   "name": "@rinza/hose",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "preview": "vite preview"
+  },
   "devDependencies": {
     "@types/node": "^20.8.9",
     "autoprefixer": "^10.4.16",

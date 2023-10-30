@@ -52,13 +52,23 @@ const App = () => {
 				<p>Real-time Farcaster messages in your React app.</p>
 				<p>
 					Docs:{" "}
-					<a href="https://github.com/tbd" target="_blank" rel="noreferrer" className="underline">
+					<a
+						href="https://github.com/tbd"
+						target="_blank"
+						rel="noreferrer"
+						className="underline"
+					>
 						github.com/tbd
 					</a>
 				</p>
 				<p>
 					Made by pixel:{" "}
-					<a href="https://warpcast.com/pixel" target="_blank" rel="noreferrer" className="underline">
+					<a
+						href="https://warpcast.com/pixel"
+						target="_blank"
+						rel="noreferrer"
+						className="underline"
+					>
 						warpcast.com/pixel
 					</a>
 				</p>
