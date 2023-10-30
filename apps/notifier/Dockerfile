@@ -14,4 +14,4 @@ RUN npm install pm2 -g
 RUN npm install
 
 # Start the applications with PM2
-CMD ["pm2-runtime", "pm2.config.cjs"]
+CMD ["pm2-runtime", "pm2.config.js"]
