@@ -13,8 +13,10 @@ export const NotifierEventSchema = z.object({
 });
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
-export const useEvents = () => {
-	const url = "http://localhost:3000";
+export const useEvents = ({
+	url = "http://localhost:3000",
+	maxItems = 250,
+} = {}) => {
 	const [data, setData] = useState<NotifierEventType[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isError, setIsError] = useState(false);
@@ -26,7 +28,7 @@ export const useEvents = () => {
 
 		socketRef.current.on("initialLogs", (initialLogs: string) => {
 			const parsedLogs = JSON.parse(initialLogs);
-			setData((prevData) => [...parsedLogs, ...prevData]);
+			setData((prevData) => [...parsedLogs, ...prevData].slice(0, maxItems));
 			setIsLoading(false);
 		});
 
@@ -48,7 +50,7 @@ export const useEvents = () => {
 				return;
 			}
 			const parsed = parsedTry.data;
-			setData((prevData) => [parsed, ...prevData]);
+			setData((prevData) => [parsed, ...prevData].slice(0, maxItems));
 		});
 
 		// cleanup
@@ -57,7 +59,7 @@ export const useEvents = () => {
 				socketRef.current.disconnect();
 			}
 		};
-	}, []);
+	}, [url, maxItems]);
 
 	return [data, isError, isLoading];
 };
