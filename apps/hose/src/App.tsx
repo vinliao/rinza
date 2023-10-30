@@ -134,6 +134,7 @@ function shuffleArray<T>(array: T[]): T[] {
 const App = () => {
 	const [data, isError, isLoading] = useEvents({
 		url: "https://rinza-notifier.up.railway.app",
+		maxItems: 250,
 	});
 	const latestHubEventId =
 		Array.isArray(data) && data.length > 0 ? data[0].hubEventId : undefined;
