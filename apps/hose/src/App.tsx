@@ -33,46 +33,54 @@ export const NotifierEventSchema = z.object({
 });
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
+const Introduction = () => {
+	return (
+		<div>
+			<p>Rinza is a TypeScript lib for building real-time Farcaster apps.</p>
+			<p>It provides React hooks. (Bot framework WIP.)</p>
+			<p>
+				TLDR:{" "}
+				<code className="font-bold">
+					const [data, isError, isLoading] = useEvents()
+				</code>
+			</p>
+			<p>Real-time Farcaster messages in your React app.</p>
+			<p>
+				Docs:{" "}
+				<a
+					href="https://github.com/tbd"
+					target="_blank"
+					rel="noreferrer"
+					className="underline"
+				>
+					github.com/tbd
+				</a>
+			</p>
+			<p>
+				Made by pixel:{" "}
+				<a
+					href="https://warpcast.com/pixel"
+					target="_blank"
+					rel="noreferrer"
+					className="underline"
+				>
+					warpcast.com/pixel
+				</a>
+			</p>
+		</div>
+	);
+};
+
 const App = () => {
-	const [data, isError, isLoading] = useEvents();
+	const [data, isError, isLoading] = useEvents({
+		url: "https://rinza-notifier.up.railway.app",
+	});
 	const latestHubEventId =
 		Array.isArray(data) && data.length > 0 ? data[0].hubEventId : undefined;
 
 	return (
 		<div className="p-2 max-w-lg h-screen flex flex-col space-y-3">
-			<div>
-				<p>Rinza is a TypeScript lib for building real-time Farcaster apps.</p>
-				<p>It provides React hooks. (Bot framework WIP.)</p>
-				<p>
-					TLDR:{" "}
-					<code className="font-bold">
-						const [data, isError, isLoading] = useEvents()
-					</code>
-				</p>
-				<p>Real-time Farcaster messages in your React app.</p>
-				<p>
-					Docs:{" "}
-					<a
-						href="https://github.com/tbd"
-						target="_blank"
-						rel="noreferrer"
-						className="underline"
-					>
-						github.com/tbd
-					</a>
-				</p>
-				<p>
-					Made by pixel:{" "}
-					<a
-						href="https://warpcast.com/pixel"
-						target="_blank"
-						rel="noreferrer"
-						className="underline"
-					>
-						warpcast.com/pixel
-					</a>
-				</p>
-			</div>
+			<Introduction />
 			<ScrollArea className="border p-2">
 				<Table className="w-full">
 					<div className="flex items-baseline space-x-2 mb-3">

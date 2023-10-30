@@ -7,6 +7,9 @@ WORKDIR /usr/src/app
 # Copy everything from current directory to working directory
 COPY . .
 
+# Install packages
+RUN npm install
+
 # Navigate to the notifier app within the monorepo
 WORKDIR /usr/src/app/apps/notifier
 

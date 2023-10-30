@@ -172,3 +172,4 @@ app.log
 playground.js
 log.ndjson
 log.sqlite
+log.sqlite-journal
