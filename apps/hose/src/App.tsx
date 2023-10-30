@@ -50,7 +50,18 @@ const App = () => {
 					</code>
 				</p>
 				<p>Real-time Farcaster messages in your React app.</p>
-				<p>Docs: github.com/tbd</p>
+				<p>
+					Docs:{" "}
+					<a href="https://github.com/tbd" target="_blank" rel="noreferrer" className="underline">
+						github.com/tbd
+					</a>
+				</p>
+				<p>
+					Made by pixel:{" "}
+					<a href="https://warpcast.com/pixel" target="_blank" rel="noreferrer" className="underline">
+						warpcast.com/pixel
+					</a>
+				</p>
 			</div>
 			<ScrollArea className="border p-2">
 				<Table className="w-full">
