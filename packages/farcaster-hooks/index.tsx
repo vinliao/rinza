@@ -16,7 +16,7 @@ export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 export const useEvents = ({
 	url = "http://localhost:3000",
 	maxItems = 250,
-} = {}) => {
+} = {}): [NotifierEventType[], boolean, boolean] => {
 	const [data, setData] = useState<NotifierEventType[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isError, setIsError] = useState(false);

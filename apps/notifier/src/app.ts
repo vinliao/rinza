@@ -43,11 +43,15 @@ io.on("connection", (socket) => {
 });
 
 app.get("/logs", (req, res) => {
+	let limit = 25;
+	if (typeof req.query.limit === "string") {
+		limit = Math.min(parseInt(req.query.limit) || 25, 250);
+	}
 	const stmt = db.prepare(
-		"SELECT * FROM events ORDER BY timestamp DESC LIMIT 10",
+		"SELECT * FROM events ORDER BY timestamp DESC LIMIT ?",
 	);
-	const lastTenLogs = stmt.all();
-	res.send(lastTenLogs);
+	const lastLogs = stmt.all(limit);
+	res.send(lastLogs);
 });
 
 server.listen(port, () => {
