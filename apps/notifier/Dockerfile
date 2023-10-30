@@ -13,5 +13,7 @@ RUN npm install pm2 -g
 # Install any needed packages specified in package.json
 RUN npm install
 
+RUN npm run build
+
 # Start the applications with PM2
 CMD ["pm2-runtime", "pm2.config.js"]
