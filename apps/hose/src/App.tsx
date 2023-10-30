@@ -5,6 +5,7 @@ import base64 from "base-64";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import logSnapshot from "./logSnapshot";
 
 const messageTypeMap = new Map([
 	[0, "NONE"],
@@ -71,6 +72,57 @@ const Introduction = () => {
 	);
 };
 
+const TableHeaderGreen = ({
+	latestHubEventId,
+}: { latestHubEventId?: number }) => (
+	<div className="flex items-baseline space-x-2 mb-3">
+		<span className="font-mono">Listening live events</span>
+		<span className="relative flex h-2 w-2">
+			<span className="animate-ping absolute inline-flex h-full w-full bg-lime-400 opacity-75 rounded-full" />
+			<span className="relative inline-flex h-2 w-2 bg-lime-500 rounded-full" />
+		</span>
+		<div className="flex-1" />
+		{latestHubEventId !== undefined && (
+			<span>Latest hubEventId: {latestHubEventId}</span>
+		)}
+	</div>
+);
+
+const TableHeaderRed = ({
+	latestHubEventId,
+}: { latestHubEventId?: number }) => (
+	<div className="flex items-baseline space-x-2 mb-3">
+		<span className="font-mono">Listening live events</span>
+		<span className="relative flex h-2 w-2">
+			<span className="animate-ping absolute inline-flex h-full w-full bg-orange-400 opacity-75 rounded-full" />
+			<span className="relative inline-flex h-2 w-2 bg-orange-500 rounded-full" />
+		</span>
+		<div className="flex-1" />
+		{latestHubEventId !== undefined && (
+			<span>Latest hubEventId: {latestHubEventId}</span>
+		)}
+	</div>
+);
+
+const LiveCasts = ({ data }: { data: NotifierEventType[] }) => (
+	<TableBody>
+		{Array.isArray(data) &&
+			data.map((event, index) => (
+				<TableRow key={event.hubEventId || index}>
+					<TableCell>
+						<Badge
+							variant={"secondary"}
+							className="px-0.5 mr-1 font-mono font-bold"
+						>
+							{messageTypeMap.get(event.type)}
+						</Badge>
+						{event.description}
+					</TableCell>
+				</TableRow>
+			))}
+	</TableBody>
+);
+
 const App = () => {
 	const [data, isError, isLoading] = useEvents({
 		url: "https://rinza-notifier.up.railway.app",
@@ -82,41 +134,17 @@ const App = () => {
 		<div className="p-2 max-w-lg h-screen flex flex-col space-y-3">
 			<Introduction />
 			<ScrollArea className="border p-2">
-				<Table className="w-full">
-					<div className="flex items-baseline space-x-2 mb-3">
-						{!isLoading && (
-							<span className="font-mono">Listening live events</span>
-						)}
-						{!isLoading && (
-							<span className="relative flex h-2 w-2">
-								<span className="animate-ping absolute inline-flex h-full w-full bg-lime-400 opacity-75 rounded-full" />
-								<span className="relative inline-flex h-2 w-2 bg-lime-500 rounded-full" />
-							</span>
-						)}
-						<div className="flex-1" />
-						{latestHubEventId && (
-							<span>Latest hubEventId: {latestHubEventId}</span>
-						)}
-					</div>
-
-					<TableBody>
-						{Array.isArray(data) &&
-							data.map((event, index) => (
-								<TableRow key={event.hubEventId || index}>
-									<TableCell>
-										<Badge
-											variant={"secondary"}
-											className="px-0.5 mr-1 font-mono font-bold"
-										>
-											{messageTypeMap.get(event.type)}
-										</Badge>
-										{event.description}
-									</TableCell>
-								</TableRow>
-							))}
-					</TableBody>
-				</Table>
-				{isLoading && <div className="text-center">Loading...</div>}
+				{!isLoading ? (
+					<Table className="w-full">
+						<TableHeaderGreen latestHubEventId={latestHubEventId} />
+						<LiveCasts data={data} />
+					</Table>
+				) : (
+					<Table className="w-full">
+						<TableHeaderRed latestHubEventId={latestHubEventId} />
+						<LiveCasts data={logSnapshot} />
+					</Table>
+				)}
 				{isError && <div className="text-center text-red-500">Error</div>}
 			</ScrollArea>
 		</div>
