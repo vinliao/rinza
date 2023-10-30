@@ -76,7 +76,7 @@ const TableHeaderGreen = ({
 	latestHubEventId,
 }: { latestHubEventId?: number }) => (
 	<div className="flex items-baseline space-x-2 mb-3">
-		<span className="font-mono">Listening live events</span>
+		<span className="font-mono">Live Farcaster events</span>
 		<span className="relative flex h-2 w-2">
 			<span className="animate-ping absolute inline-flex h-full w-full bg-lime-400 opacity-75 rounded-full" />
 			<span className="relative inline-flex h-2 w-2 bg-lime-500 rounded-full" />
@@ -92,7 +92,7 @@ const TableHeaderRed = ({
 	latestHubEventId,
 }: { latestHubEventId?: number }) => (
 	<div className="flex items-baseline space-x-2 mb-3">
-		<span className="font-mono">Listening live events</span>
+		<span className="font-mono">Live Farcaster events</span>
 		<span className="relative flex h-2 w-2">
 			<span className="animate-ping absolute inline-flex h-full w-full bg-orange-400 opacity-75 rounded-full" />
 			<span className="relative inline-flex h-2 w-2 bg-orange-500 rounded-full" />
@@ -123,6 +123,14 @@ const LiveCasts = ({ data }: { data: NotifierEventType[] }) => (
 	</TableBody>
 );
 
+function shuffleArray<T>(array: T[]): T[] {
+	for (let i = array.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[array[i], array[j]] = [array[j], array[i]];
+	}
+	return array;
+}
+
 const App = () => {
 	const [data, isError, isLoading] = useEvents({
 		url: "https://rinza-notifier.up.railway.app",
@@ -142,7 +150,7 @@ const App = () => {
 				) : (
 					<Table className="w-full">
 						<TableHeaderRed latestHubEventId={latestHubEventId} />
-						<LiveCasts data={logSnapshot} />
+						<LiveCasts data={shuffleArray(logSnapshot)} />
 					</Table>
 				)}
 				{isError && <div className="text-center text-red-500">Error</div>}
