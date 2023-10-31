@@ -58,7 +58,7 @@ const Introduction = () => {
 				</a>
 			</p>
 			<p>
-				Made by pixel:{" "}
+				Reach me at:{" "}
 				<a
 					href="https://warpcast.com/pixel"
 					target="_blank"
@@ -66,6 +66,15 @@ const Introduction = () => {
 					className="underline"
 				>
 					warpcast.com/pixel
+				</a>{" "}
+				or{" "}
+				<a
+					href="https://t.me/pixel6861636b"
+					target="_blank"
+					rel="noreferrer"
+					className="underline"
+				>
+					t.me/pixel6861636b
 				</a>
 			</p>
 		</div>
