@@ -49,12 +49,12 @@ const Introduction = () => {
 			<p>
 				Docs:{" "}
 				<a
-					href="https://github.com/tbd"
+					href="https://github.com/vinliao/rinza"
 					target="_blank"
 					rel="noreferrer"
 					className="underline"
 				>
-					github.com/tbd
+					github.com/vinliao/rinza
 				</a>
 			</p>
 			<p>
