@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
 	const stmt = db.prepare(
-		"SELECT * FROM events ORDER BY timestamp DESC LIMIT 30",
+		"SELECT * FROM events ORDER BY timestamp DESC LIMIT 100",
 	);
 	const lastTenLogs = stmt.all();
 	socket.emit("initialLogs", JSON.stringify(lastTenLogs));
@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
 app.get("/logs", (req, res) => {
 	let limit = 25;
 	if (typeof req.query.limit === "string") {
-		limit = Math.min(parseInt(req.query.limit) || 25, 250);
+		limit = Math.min(parseInt(req.query.limit) || 25, 100);
 	}
 	const stmt = db.prepare(
 		"SELECT * FROM events ORDER BY timestamp DESC LIMIT ?",
