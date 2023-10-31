@@ -12,9 +12,9 @@ import { useEvents } from "@rinza/farcaster-hooks";
 // data variable is self-updating array of objects, fetched from Hub
 const [data, isError, isLoading] = useEvents();
 data.map((event) => (
-	<tr key={event.hubEventId}>
-		<td>{event.description}</td>
-	</tr>
+  <tr key={event.hubEventId}>
+    <td>{event.description}</td>
+  </tr>
 ));
 ```
 

@@ -14,7 +14,7 @@ export const NotifierEventSchema = z.object({
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
 export const useEvents = ({
-	url = "http://localhost:3000",
+	url = "https://rinza-notifier.up.railway.app",
 	maxItems = 250,
 } = {}): [NotifierEventType[], boolean, boolean] => {
 	const [data, setData] = useState<NotifierEventType[]>([]);
