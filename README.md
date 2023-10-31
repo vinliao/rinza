@@ -9,6 +9,7 @@ TypeScript libraries for real-time Farcaster apps.
 ```tsx
 import { useEvents } from "@rinza/farcaster-hooks";
 
+// data variable is self-updating array of objects, fetched from Hub
 const [data, isError, isLoading] = useEvents();
 data.map((event) => (
 	<tr key={event.hubEventId}>
@@ -23,8 +24,8 @@ Demo: [https://rinza.org](https://rinza.org)
 Real-time Farcaster data is nice, but spinning up a custom websocket server is annoying.
 
 This monorepo contains:
-- A websocket server that sends real-time Farcaster
-- A React hook that wraps the websocket server
+- A websocket server that sends real-time Farcaster (see: apps/notifier)
+- A React hook that wraps the websocket server (see: packages/farcaster-hooks)
 - A TypeScript bot framework (WIP)
 
 What Rinza does not provide:
