@@ -16,7 +16,7 @@ export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 export const useEvents = ({
 	url = "https://rinza-notifier.up.railway.app",
 	maxItems = 250,
-} = {}): [NotifierEventType[], boolean, boolean] => {
+} = {}) => {
 	const [data, setData] = useState<NotifierEventType[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isError, setIsError] = useState(false);
@@ -61,5 +61,8 @@ export const useEvents = ({
 		};
 	}, [url, maxItems]);
 
-	return [data, isError, isLoading];
+	return { data, isError, isLoading };
 };
+
+// TODO:
+// export const useTrending = () => {};

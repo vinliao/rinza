@@ -42,7 +42,7 @@ const Introduction = () => {
 			<p>
 				TLDR:{" "}
 				<code className="font-bold">
-					const [data, isError, isLoading] = useEvents()
+					{"const { data, isError, isLoading } = useEvents();"}
 				</code>
 			</p>
 			<p>Real-time Farcaster messages in your React app.</p>
@@ -141,7 +141,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 const App = () => {
-	const [data, isError, isLoading] = useEvents({
+	const { data, isError, isLoading } = useEvents({
 		url: "https://rinza-notifier.up.railway.app",
 		maxItems: 250,
 	});
