@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { z } from "zod";
+// import utf8 from "utf8";
+// import base64 from "base-64";
 
 export const NotifierEventSchema = z.object({
 	hubEventId: z.number(),
@@ -12,6 +14,10 @@ export const NotifierEventSchema = z.object({
 	raw: z.string(),
 });
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
+
+// raw: base64.encode(utf8.encode(JSON.stringify(parsed))),
+// above is encoded code
+const parseRaw = (raw: string) => {};
 
 // TODO: hubHTTPURL
 // TODO: maybe there's a better API than [-1] for "all"

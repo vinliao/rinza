@@ -1,7 +1,5 @@
 import { useEvents } from "@rinza/farcaster-hooks";
 import { z } from "zod";
-import utf8 from "utf8";
-import base64 from "base-64";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
