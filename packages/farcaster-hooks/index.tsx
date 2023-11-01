@@ -63,7 +63,7 @@ export const useEvents = ({
 			}
 			const parsed = parsedTry.data;
 
-      // filter the events
+			// filter the events
 			if (
 				!includeFidsRef.current.includes(-1) &&
 				!includeFidsRef.current.includes(parsed.fid)
