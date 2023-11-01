@@ -9,8 +9,8 @@ TypeScript libraries for real-time Farcaster apps.
 ```tsx
 import { useEvents } from "@rinza/farcaster-hooks";
 
-// data variable is self-updating array of objects, fetched from Hub
 const App = () => {
+  // data variable is self-updating array of objects, fetched from Hub
   const { data, isError, isLoading } = useEvents();
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error!</p>;
@@ -32,8 +32,8 @@ Real-time Farcaster data is nice, but spinning up a custom websocket server is a
 
 This monorepo contains:
 
-- A websocket server that sends real-time Farcaster (see: apps/notifier)
-- A React hook that wraps the websocket server (see: packages/farcaster-hooks)
+- A websocket server that sends real-time Farcaster (see: [apps/notifier](./apps/notifier/))
+- A React hook that wraps the websocket server (see: [packages/farcaster-hooks](./packages/farcaster-hooks/))
 - A TypeScript bot framework (WIP)
 
 What Rinza does not provide:
@@ -42,13 +42,11 @@ What Rinza does not provide:
 - Writing functionalities (eg. message construction, writing to Hub)
 - Use this instead: [https://github.com/standard-crypto/farcaster-js](https://github.com/standard-crypto/farcaster-js)
 
-Reach me at: [warpcast.com/pixel](https://warpcast.com/pixel) or [t.me/pixel6861636b](https://t.me/pixel6861636b)
-
 ## APIs
 
-`useEvents()`
+**`useEvents()`**
 
-Hook for fetching real-time Farcaster events from Hub.
+Hook to listen for real-time Farcaster events from Hub.
 
 ### Usage
 
@@ -88,3 +86,13 @@ const App = () => {
   raw: string // base64 encoded string of raw messages from Hub
 }
 ```
+
+**`useCasts()`** (WIP)
+
+Hook to listen for real-time casts from Hub.
+
+**`useTrending()`** (WIP)
+
+Hook for fetching trending casts.
+
+Reach me at: [warpcast.com/pixel](https://warpcast.com/pixel) or [t.me/pixel6861636b](https://t.me/pixel6861636b)
