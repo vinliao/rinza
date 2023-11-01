@@ -142,7 +142,7 @@ function shuffleArray<T>(array: T[]): T[] {
 
 const App = () => {
 	const { data, isError, isLoading } = useEvents({
-		url: "https://rinza-notifier.up.railway.app",
+		notifierURL: "https://rinza-notifier.up.railway.app",
 		maxItems: 100,
 	});
 	const latestHubEventId =

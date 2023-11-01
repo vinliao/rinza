@@ -13,19 +13,30 @@ export const NotifierEventSchema = z.object({
 });
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
+// TODO: hubHTTPURL
+// TODO: maybe there's a better API than [-1] for "all"
 export const useEvents = ({
-	url = "https://rinza-notifier.up.railway.app",
+	notifierURL = "https://rinza-notifier.up.railway.app",
 	maxItems = 100,
+	includeFids = [-1], // -1 means all
+	includeMessageTypes = [-1], // -1 means all
 } = {}) => {
 	const [data, setData] = useState<NotifierEventType[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isError, setIsError] = useState(false);
 	const socketRef = useRef<Socket | null>(null);
 
+	const includeFidsRef = useRef(includeFids);
+	const includeMessageTypesRef = useRef(includeMessageTypes);
+
+	useEffect(() => {
+		includeFidsRef.current = includeFids;
+		includeMessageTypesRef.current = includeMessageTypes;
+	}, [includeFids, includeMessageTypes]);
+
 	useEffect(() => {
 		setIsLoading(true);
-		socketRef.current = io(url);
-
+		socketRef.current = io(notifierURL);
 		socketRef.current.on("initialLogs", (initialLogs: string) => {
 			const parsedLogs = JSON.parse(initialLogs);
 			setData((prevData) => [...parsedLogs, ...prevData].slice(0, maxItems));
@@ -45,11 +56,26 @@ export const useEvents = ({
 		socketRef.current.on("event", (eventData: string) => {
 			const parsedTry = NotifierEventSchema.safeParse(JSON.parse(eventData));
 			if (!parsedTry.success) {
+				// TODO: log somewhere
 				console.error("Data parsing error:", parsedTry.error);
 				setIsError(true);
 				return;
 			}
 			const parsed = parsedTry.data;
+
+      // filter the events
+			if (
+				!includeFidsRef.current.includes(-1) &&
+				!includeFidsRef.current.includes(parsed.fid)
+			)
+				return;
+
+			if (
+				!includeMessageTypesRef.current.includes(-1) &&
+				!includeMessageTypesRef.current.includes(parsed.type)
+			)
+				return;
+
 			setData((prevData) => [parsed, ...prevData].slice(0, maxItems));
 		});
 
@@ -59,7 +85,7 @@ export const useEvents = ({
 				socketRef.current.disconnect();
 			}
 		};
-	}, [url, maxItems]);
+	}, [notifierURL, maxItems]);
 
 	return { data, isError, isLoading };
 };
