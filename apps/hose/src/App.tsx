@@ -142,8 +142,6 @@ const App = () => {
 	const { data, isError, isLoading } = useEvents({
 		notifierURL: "http://localhost:3000",
 		maxItems: 100,
-		includeFids: [4286],
-		includeMessageTypes: [3, 4, 5],
 	});
 	const latestHubEventId =
 		Array.isArray(data) && data.length > 0 ? data[0].hubEventId : undefined;

@@ -1,8 +1,10 @@
 import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
 import { emitter } from "./singletons";
-import { HubEventMergeSchema, userDataTypeMap } from "@rinza/utils";
-import base64 from "base-64";
-import utf8 from "utf8";
+import {
+	encodeBase64,
+	HubEventMergeSchema,
+	userDataTypeMap,
+} from "@rinza/utils";
 import { z } from "zod";
 import { appendFile } from "fs";
 import sqlite from "better-sqlite3";
@@ -158,7 +160,7 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
 			type: parsed.mergeMessageBody.message.data.type,
 			timestamp,
 			description: makeDescription(parsed),
-			raw: base64.encode(utf8.encode(JSON.stringify(parsed))),
+			raw: encodeBase64(parsed),
 		};
 
 		clog("subscribe/payload", payload);

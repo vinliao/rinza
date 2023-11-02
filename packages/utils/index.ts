@@ -1,4 +1,13 @@
 import { z } from "zod";
+import utf8 from "utf8";
+import base64 from "base-64";
+
+export const encodeBase64 = (obj: object) => {
+	return base64.encode(utf8.encode(JSON.stringify(obj)));
+};
+export const parseBase64 = (raw: string) => {
+	return JSON.parse(utf8.decode(base64.decode(raw)));
+};
 
 export const BufferSchema = z.instanceof(Buffer).transform((buffer) => {
 	return `0x${buffer.toString("hex")}`;
@@ -18,7 +27,7 @@ const EmbedSchema = z.object({
 
 // TODO: figure out how to dedupe
 // message type 1
-const CastAddMessageSchema = z.object({
+export const CastAddMessageSchema = z.object({
 	data: z.object({
 		type: z.number(),
 		fid: z.number(),
