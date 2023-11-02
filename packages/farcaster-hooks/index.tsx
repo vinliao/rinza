@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { z } from "zod";
+import utf8 from "utf8";
+import base64 from "base-64";
 
 export const NotifierEventSchema = z.object({
 	hubEventId: z.number(),
@@ -13,9 +15,14 @@ export const NotifierEventSchema = z.object({
 });
 export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
 
-// raw: base64.encode(utf8.encode(JSON.stringify(parsed))),
-// above is encoded code
-const parseRaw = (raw: string) => {};
+// TODO: move this to utils, but figure out the Buffer bug first
+export const encodeBase64 = (obj: object) => {
+	return base64.encode(utf8.encode(JSON.stringify(obj)));
+};
+
+export const parseBase64 = (raw: string) => {
+	return JSON.parse(utf8.decode(base64.decode(raw)));
+};
 
 // TODO: hubHTTPURL
 // TODO: maybe there's a better API than [-1] for "all"
@@ -75,29 +82,21 @@ export const useEvents = ({
 			setData((prevData) => [parsed, ...prevData].slice(0, maxItems));
 		};
 
-		if (
-			includeFidsRef.current.includes(-1) &&
-			includeMessageTypesRef.current.includes(-1)
-		) {
-			socketRef.current.on("merge-message", eventHandler);
-		} else if (
-			includeFidsRef.current.includes(-1) &&
-			!includeMessageTypesRef.current.includes(-1)
-		) {
+		const includeAllFids = includeFidsRef.current.includes(-1);
+		const includeAllMessageTypes = includeMessageTypesRef.current.includes(-1);
+		const includeAll = includeAllFids && includeAllMessageTypes;
+
+		// listen to specific events based on the include* props
+		if (includeAll) socketRef.current.on("merge-message", eventHandler);
+		else if (includeAllFids && !includeAllMessageTypes) {
 			for (const messageType of includeMessageTypesRef.current) {
 				socketRef.current.on(`merge-message-type-${messageType}`, eventHandler);
 			}
-		} else if (
-			includeMessageTypesRef.current.includes(-1) &&
-			!includeFidsRef.current.includes(-1)
-		) {
+		} else if (!includeAllFids && includeAllMessageTypes) {
 			for (const fid of includeFidsRef.current) {
 				socketRef.current.on(`merge-message-fid-${fid}`, eventHandler);
 			}
-		} else if (
-			!includeMessageTypesRef.current.includes(-1) &&
-			!includeFidsRef.current.includes(-1)
-		) {
+		} else if (!includeAllFids && !includeAllMessageTypes) {
 			for (const messageType of includeMessageTypesRef.current) {
 				for (const fid of includeFidsRef.current) {
 					socketRef.current.on(
