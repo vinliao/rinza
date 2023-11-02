@@ -13,9 +13,10 @@
     "notifier:serve": "cd apps/notifier && npm run serve",
     "notifier:dev": "cd apps/notifier && npm run dev",
     "farcaster-hooks:build": "cd packages/farcaster-hooks && npm run build",
+    "farcaster-hooks:build:watch": "cd packages/farcaster-hooks && npm run build:watch",
     "farcaster-hooks:serve": "cd packages/farcaster-hooks && npm run serve",
     "farcaster-hooks:dev": "cd packages/farcaster-hooks && npm run dev",
-    "hose:dev": "concurrently \"bun run notifier:dev\" \"cd apps/hose && bun run dev\""
+    "hose:dev": "concurrently \"bun run notifier:dev\" \"cd apps/hose && bun run dev\" \"bun run farcaster-hooks:build:watch\""
   },
   "workspaces": ["packages/*"],
   "dependencies": {

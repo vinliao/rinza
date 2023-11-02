@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { z } from "zod";
-// import utf8 from "utf8";
-// import base64 from "base-64";
 
 export const NotifierEventSchema = z.object({
 	hubEventId: z.number(),
@@ -24,14 +22,15 @@ const parseRaw = (raw: string) => {};
 export const useEvents = ({
 	notifierURL = "https://rinza-notifier.up.railway.app",
 	maxItems = 100,
-	includeFids = [-1], // -1 means all
-	includeMessageTypes = [-1], // -1 means all
+	includeFids = [-1], // -1 means include all
+	includeMessageTypes = [-1], // -1 means include all
 } = {}) => {
 	const [data, setData] = useState<NotifierEventType[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isError, setIsError] = useState(false);
 	const socketRef = useRef<Socket | null>(null);
 
+	// if both are defined, it's AND operation
 	const includeFidsRef = useRef(includeFids);
 	const includeMessageTypesRef = useRef(includeMessageTypes);
 
@@ -43,14 +42,20 @@ export const useEvents = ({
 	useEffect(() => {
 		setIsLoading(true);
 		socketRef.current = io(notifierURL);
-		socketRef.current.on("initialLogs", (initialLogs: string) => {
-			const parsedLogs = JSON.parse(initialLogs);
-			setData((prevData) => [...parsedLogs, ...prevData].slice(0, maxItems));
-			setIsLoading(false);
-		});
-
 		socketRef.current.on("connect", () => {
 			console.log("Socket.io connection established");
+		});
+
+		socketRef.current.on("initial-logs", (initialLogs: string) => {
+			const rawLogs = JSON.parse(initialLogs);
+			const parsedTry = z.array(NotifierEventSchema).safeParse(rawLogs);
+			if (!parsedTry.success) {
+				console.error("Data parsing error:", parsedTry.error);
+				setIsError(true);
+				return;
+			}
+			const parsed = parsedTry.data;
+			setData((prevData) => [...parsed, ...prevData].slice(0, maxItems));
 			setIsLoading(false);
 		});
 
@@ -59,31 +64,49 @@ export const useEvents = ({
 			setIsError(true);
 		});
 
-		socketRef.current.on("event", (eventData: string) => {
+		const eventHandler = (eventData: string) => {
 			const parsedTry = NotifierEventSchema.safeParse(JSON.parse(eventData));
 			if (!parsedTry.success) {
-				// TODO: log somewhere
 				console.error("Data parsing error:", parsedTry.error);
 				setIsError(true);
 				return;
 			}
 			const parsed = parsedTry.data;
-
-			// filter the events
-			if (
-				!includeFidsRef.current.includes(-1) &&
-				!includeFidsRef.current.includes(parsed.fid)
-			)
-				return;
-
-			if (
-				!includeMessageTypesRef.current.includes(-1) &&
-				!includeMessageTypesRef.current.includes(parsed.type)
-			)
-				return;
-
 			setData((prevData) => [parsed, ...prevData].slice(0, maxItems));
-		});
+		};
+
+		if (
+			includeFidsRef.current.includes(-1) &&
+			includeMessageTypesRef.current.includes(-1)
+		) {
+			socketRef.current.on("merge-message", eventHandler);
+		} else if (
+			includeFidsRef.current.includes(-1) &&
+			!includeMessageTypesRef.current.includes(-1)
+		) {
+			for (const messageType of includeMessageTypesRef.current) {
+				socketRef.current.on(`merge-message-type-${messageType}`, eventHandler);
+			}
+		} else if (
+			includeMessageTypesRef.current.includes(-1) &&
+			!includeFidsRef.current.includes(-1)
+		) {
+			for (const fid of includeFidsRef.current) {
+				socketRef.current.on(`merge-message-fid-${fid}`, eventHandler);
+			}
+		} else if (
+			!includeMessageTypesRef.current.includes(-1) &&
+			!includeFidsRef.current.includes(-1)
+		) {
+			for (const messageType of includeMessageTypesRef.current) {
+				for (const fid of includeFidsRef.current) {
+					socketRef.current.on(
+						`merge-message-fid-${fid}-type-${messageType}`,
+						eventHandler,
+					);
+				}
+			}
+		}
 
 		// cleanup
 		return () => {

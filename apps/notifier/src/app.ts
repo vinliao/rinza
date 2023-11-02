@@ -31,9 +31,20 @@ io.on("connection", (socket) => {
 	socket.emit("initial-logs", JSON.stringify(lastTenLogs));
 
 	const sendEventToClient = (data: NotifierEventType) => {
-		socket.emit("merge-message", JSON.stringify(data));
-		socket.emit(`merge-message-type-${data.type}`, JSON.stringify(data));
-		socket.emit(`merge-message-fid-${data.fid}`, JSON.stringify(data));
+		const messages = [
+			"merge-message",
+			`merge-message-type-${data.type}`,
+			`merge-message-fid-${data.fid}`,
+			`merge-message-fid-${data.fid}-type-${data.type}`,
+		];
+
+		messages.map((message) => {
+			socket.emit(message, JSON.stringify(data));
+		});
+
+		// if(data.type === 3) {
+		//   socket.emit(`cast-fid-${data.fid}`, JSON.stringify(data));
+		// }
 	};
 	emitter.on("merge-message", sendEventToClient);
 

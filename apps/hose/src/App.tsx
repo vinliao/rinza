@@ -39,7 +39,7 @@ const Introduction = () => {
 			<p>It provides React hooks. (Bot framework WIP.)</p>
 			<p>
 				TLDR:{" "}
-				<code className="font-bold">
+				<code className="font-bold bg-gray-100 px-1">
 					{"const { data, isError, isLoading } = useEvents();"}
 				</code>
 			</p>
@@ -83,14 +83,14 @@ const TableHeaderGreen = ({
 	latestHubEventId,
 }: { latestHubEventId?: number }) => (
 	<div className="flex items-baseline space-x-2 mb-3">
-		<span className="font-mono">Live Farcaster events</span>
+		<span className="font-mono">Live events</span>
 		<span className="relative flex h-2 w-2">
 			<span className="animate-ping absolute inline-flex h-full w-full bg-lime-400 opacity-75 rounded-full" />
 			<span className="relative inline-flex h-2 w-2 bg-lime-500 rounded-full" />
 		</span>
 		<div className="flex-1" />
 		{latestHubEventId !== undefined && (
-			<span>Latest hubEventId: {latestHubEventId}</span>
+			<span>Event ID tip: {latestHubEventId}</span>
 		)}
 	</div>
 );
@@ -99,14 +99,14 @@ const TableHeaderRed = ({
 	latestHubEventId,
 }: { latestHubEventId?: number }) => (
 	<div className="flex items-baseline space-x-2 mb-3">
-		<span className="font-mono">Live Farcaster events</span>
+		<span className="font-mono">Live events</span>
 		<span className="relative flex h-2 w-2">
 			<span className="animate-ping absolute inline-flex h-full w-full bg-orange-400 opacity-75 rounded-full" />
 			<span className="relative inline-flex h-2 w-2 bg-orange-500 rounded-full" />
 		</span>
 		<div className="flex-1" />
 		{latestHubEventId !== undefined && (
-			<span>Latest hubEventId: {latestHubEventId}</span>
+			<span>Event ID tip: {latestHubEventId}</span>
 		)}
 	</div>
 );
@@ -140,8 +140,10 @@ function shuffleArray<T>(array: T[]): T[] {
 
 const App = () => {
 	const { data, isError, isLoading } = useEvents({
-		notifierURL: "https://rinza-notifier.up.railway.app",
+		notifierURL: "http://localhost:3000",
 		maxItems: 100,
+		includeFids: [4286],
+		includeMessageTypes: [3, 4, 5],
 	});
 	const latestHubEventId =
 		Array.isArray(data) && data.length > 0 ? data[0].hubEventId : undefined;
