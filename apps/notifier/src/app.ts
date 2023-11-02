@@ -4,10 +4,9 @@ import { emitter } from "./singletons";
 import http from "http";
 import { Server } from "socket.io";
 import { NotifierEventType } from "@rinza/farcaster-hooks";
-
 import sqlite from "better-sqlite3";
-const db = new sqlite("log.sqlite");
 
+const db = new sqlite("log.sqlite");
 const app = express();
 const port = Number(process.env.PORT) || 3000;
 const server = http.createServer(app);
@@ -29,15 +28,17 @@ io.on("connection", (socket) => {
 		"SELECT * FROM events ORDER BY timestamp DESC LIMIT 100",
 	);
 	const lastTenLogs = stmt.all();
-	socket.emit("initialLogs", JSON.stringify(lastTenLogs));
+	socket.emit("initial-logs", JSON.stringify(lastTenLogs));
 
 	const sendEventToClient = (data: NotifierEventType) => {
-		socket.emit("event", JSON.stringify(data));
+		socket.emit("merge-message", JSON.stringify(data));
+		socket.emit(`merge-message-type-${data.type}`, JSON.stringify(data));
+		socket.emit(`merge-message-fid-${data.fid}`, JSON.stringify(data));
 	};
+	emitter.on("merge-message", sendEventToClient);
 
-	emitter.on("all-event", sendEventToClient);
 	socket.on("disconnect", () => {
-		emitter.off("all-event", sendEventToClient);
+		emitter.off("merge-message", sendEventToClient);
 		console.log("Client disconnected");
 	});
 });

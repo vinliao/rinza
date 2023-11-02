@@ -182,7 +182,7 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
       )
     `).run(payload);
 
-		emitter.emit("all-event", payload);
+		emitter.emit("merge-message", payload);
 	}
 	client.close();
 });
