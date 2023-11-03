@@ -31,26 +31,23 @@ export const parseBase64 = (raw: string) => {
  *
  * @param {object} options - Hook config.
  * @param {string} options.notifierURL - Notifier URL,
- * @param {number} options.maxItems - Max number of items to keep in the list.
  *
  * @returns TODO
  *
  * @example
  * ```
- * const data = useEvents();
+ * const events = useEvents();
  * ```
  */
-export const useEvents = ({
+export const useListenEvents = ({
 	notifierURL = "https://rinza-notifier.up.railway.app",
-	maxItems = 100,
 } = {}) => {
-	const [data, setData] = useState<NotifierEventType[]>([]);
+	const [event, setEvent] = useState<NotifierEventType | null>(null);
 	const [status, setStatus] = useState<
 		"connecting" | "reconnecting" | "connected" | "disconnected"
 	>("connecting");
 	const socketRef = useRef<Socket | null>(null);
 
-	// Derive boolean values from the status
 	const isConnecting = status === "connecting";
 	const isReconnecting = status === "reconnecting";
 	const isConnected = status === "connected";
@@ -86,7 +83,7 @@ export const useEvents = ({
 				return;
 			}
 			const parsed = parsedTry.data;
-			setData((prevData) => [parsed, ...prevData].slice(0, maxItems));
+			setEvent(parsed);
 		});
 
 		// cleanup
@@ -96,10 +93,10 @@ export const useEvents = ({
 				setStatus("disconnected");
 			}
 		};
-	}, [notifierURL, maxItems]);
+	}, [notifierURL]);
 
 	return {
-		data,
+		event,
 		status,
 		isConnecting,
 		isReconnecting,
@@ -108,104 +105,73 @@ export const useEvents = ({
 	};
 };
 
-// useRecentEvents, literally just the recent EventSource,
-// from hubEventId, literallywrapper around
-// useRecentEvents = 2281/v1/events?from_event_id=350909155450880
+/**
+ * useRecentEvents() Hook
+ *
+ * Fetches recent events.
+ *
+ * @param {object} options - Hook config.
+ * @param {string} options.notifierURL - Notifier URL,
+ * @param {number} options.maxItems - Max number of items to keep in the list.
+ *
+ * @returns TODO
+ *
+ * @example
+ * ```
+ * const { result, isFetched } = useRecentEvents();
+ * ```
+ *
+ * TODO:
+ * - cursor?
+ */
+export const useRecentEvents = ({
+	notifierURL = "https://rinza-notifier.up.railway.app",
+	maxItems = 25, // min 25, max 100
+} = {}) => {
+	const [result, setResult] = useState<NotifierEventType[]>([]);
+	const [status, setStatus] = useState<
+		"idle" | "fetching" | "fetched" | "error"
+	>("idle");
 
-// export const useCasts = ({
-// 	notifierURL = "https://rinza-notifier.up.railway.app",
-// 	maxItems = 100,
-// 	includeFids = [-1], // -1 means include all
-// 	includeMentions = [-1], // -1 means include all
-// 	includeParentFid = [-1], // -1 means include all
-// 	includeParentUrl = [-1], // -1 means include all
-// } = {}) => {
-// 	const [data, setData] = useState<NotifierEventType[]>([]);
-// 	const [isLoading, setIsLoading] = useState(false);
-// 	const [isError, setIsError] = useState(false);
-// 	const socketRef = useRef<Socket | null>(null);
+	const isFetching = status === "fetching";
+	const isFetched = status === "fetched";
+	const isError = status === "error";
 
-// 	// if both are defined, it's AND operation
-// 	const includeFidsRef = useRef(includeFids);
+	useEffect(() => {
+		const fetchData = async () => {
+			setStatus("fetching");
+			try {
+				const url = `${notifierURL}/logs?limit=${maxItems}`;
+				const response = await fetch(url);
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				const data = await response.json();
+				setResult(data);
+				setStatus("fetched");
+			} catch (error) {
+				console.error("Fetching error:", error);
+				setStatus("error");
+			}
+		};
 
-// 	const includeMessageTypesRef = useRef(includeMessageTypes);
+		fetchData();
+	}, [notifierURL, maxItems]);
 
-// 	useEffect(() => {
-// 		includeFidsRef.current = includeFids;
-// 		includeMessageTypesRef.current = includeMessageTypes;
-// 	}, [includeFids, includeMessageTypes]);
+	return {
+		result,
+		status,
+		isFetching,
+		isFetched,
+		isError,
+	};
+};
 
-// 	useEffect(() => {
-// 		setIsLoading(true);
-// 		socketRef.current = io(notifierURL);
-// 		socketRef.current.on("connect", () => {
-// 			console.log("Socket.io connection established");
-// 		});
-
-// 		socketRef.current.on("initial-logs", (initialLogs: string) => {
-// 			const rawLogs = JSON.parse(initialLogs);
-// 			const parsedTry = z.array(NotifierEventSchema).safeParse(rawLogs);
-// 			if (!parsedTry.success) {
-// 				console.error("Data parsing error:", parsedTry.error);
-// 				setIsError(true);
-// 				return;
-// 			}
-// 			const parsed = parsedTry.data;
-// 			setData((prevData) => [...parsed, ...prevData].slice(0, maxItems));
-// 			setIsLoading(false);
-// 		});
-
-// 		socketRef.current.on("connect_error", (error: Error) => {
-// 			console.log("Socket.io connection error:", error);
-// 			setIsError(true);
-// 		});
-
-// 		const eventHandler = (eventData: string) => {
-// 			const parsedTry = NotifierEventSchema.safeParse(JSON.parse(eventData));
-// 			if (!parsedTry.success) {
-// 				console.error("Data parsing error:", parsedTry.error);
-// 				setIsError(true);
-// 				return;
-// 			}
-// 			const parsed = parsedTry.data;
-// 			setData((prevData) => [parsed, ...prevData].slice(0, maxItems));
-// 		};
-
-// 		const includeAllFids = includeFidsRef.current.includes(-1);
-// 		const includeAllMessageTypes = includeMessageTypesRef.current.includes(-1);
-// 		const includeAll = includeAllFids && includeAllMessageTypes;
-
-// 		// listen to specific events based on the include* props
-// 		if (includeAll) socketRef.current.on("merge-message", eventHandler);
-// 		else if (includeAllFids && !includeAllMessageTypes) {
-// 			for (const messageType of includeMessageTypesRef.current) {
-// 				socketRef.current.on(`merge-message-type-${messageType}`, eventHandler);
-// 			}
-// 		} else if (!includeAllFids && includeAllMessageTypes) {
-// 			for (const fid of includeFidsRef.current) {
-// 				socketRef.current.on(`merge-message-fid-${fid}`, eventHandler);
-// 			}
-// 		} else if (!includeAllFids && !includeAllMessageTypes) {
-// 			for (const messageType of includeMessageTypesRef.current) {
-// 				for (const fid of includeFidsRef.current) {
-// 					socketRef.current.on(
-// 						`merge-message-fid-${fid}-type-${messageType}`,
-// 						eventHandler,
-// 					);
-// 				}
-// 			}
-// 		}
-
-// 		// cleanup
-// 		return () => {
-// 			if (socketRef.current) {
-// 				socketRef.current.disconnect();
-// 			}
-// 		};
-// 	}, [notifierURL, maxItems]);
-
-// 	return { data, isError, isLoading };
-// };
-
-// // TODO:
-// // export const useTrending = () => {};
+/**
+ * ideas:
+ * - useFname
+ * - useFid
+ * - useHubEventId
+ * - useHubEventIdFrom
+ * - useCasts
+ */

@@ -1,5 +1,6 @@
-import { useEvents } from "@rinza/farcaster-hooks";
+import { useListenEvents, useRecentEvents } from "@rinza/farcaster-hooks";
 import { z } from "zod";
+import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -139,21 +140,36 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 const App = () => {
-	const { data, isConnected } = useEvents({
+	const { event, isConnected } = useListenEvents({
 		notifierURL: "https://rinza-notifier.up.railway.app",
-		maxItems: 100,
 	});
-	const latestHubEventId =
-		Array.isArray(data) && data.length > 0 ? data[0].hubEventId : undefined;
+
+	const { result: recentEvents, isFetched } = useRecentEvents();
+	const [events, setEvents] = useState<NotifierEventType[]>([]);
+
+	useEffect(() => {
+		if (isFetched && recentEvents) {
+			setEvents(recentEvents);
+		}
+	}, [isFetched, recentEvents]);
+
+	// TODO: what if latest event gets set first before event
+	useEffect(() => {
+		if (isConnected && event) {
+			setEvents((currentEvents) => [event, ...currentEvents]);
+		}
+	}, [event, isConnected]);
+
+	const latestHubEventId = events[0]?.hubEventId;
 
 	return (
 		<div className="p-2 max-w-lg h-screen flex flex-col space-y-3">
 			<Introduction />
 			<ScrollArea className="border p-2">
-				{isConnected ? (
+				{isFetched ? (
 					<Table className="w-full">
 						<TableHeaderGreen latestHubEventId={latestHubEventId} />
-						<LiveCasts data={data} />
+						<LiveCasts data={events} />
 					</Table>
 				) : (
 					<Table className="w-full">
