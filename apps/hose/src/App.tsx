@@ -40,7 +40,7 @@ const Introduction = () => {
 			<p>
 				TLDR:{" "}
 				<code className="font-bold bg-gray-100 px-1">
-					{"const { data, isError, isLoading } = useEvents();"}
+					{"const data = useEvents();"}
 				</code>
 			</p>
 			<p>Real-time Farcaster messages in your React app.</p>
@@ -139,7 +139,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 const App = () => {
-	const { data, isError, isLoading } = useEvents({
+	const { data, isConnected } = useEvents({
 		notifierURL: "https://rinza-notifier.up.railway.app",
 		maxItems: 100,
 	});
@@ -150,7 +150,7 @@ const App = () => {
 		<div className="p-2 max-w-lg h-screen flex flex-col space-y-3">
 			<Introduction />
 			<ScrollArea className="border p-2">
-				{!isLoading ? (
+				{isConnected ? (
 					<Table className="w-full">
 						<TableHeaderGreen latestHubEventId={latestHubEventId} />
 						<LiveCasts data={data} />
@@ -161,7 +161,7 @@ const App = () => {
 						<LiveCasts data={shuffleArray(logSnapshot)} />
 					</Table>
 				)}
-				{isError && <div className="text-center text-red-500">Error</div>}
+				{/* {isError && <div className="text-center text-red-500">Error</div>} */}
 			</ScrollArea>
 		</div>
 	);
