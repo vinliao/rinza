@@ -1,10 +1,10 @@
-import { useListenEvents, useRecentEvents } from "@rinza/farcaster-hooks";
-import { z } from "zod";
+import { useListenEvent, useRecentEvents } from "@rinza/farcaster-hooks";
 import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import logSnapshot from "./logSnapshot";
+import { NotifierEventType } from "@rinza/utils";
 
 const messageTypeMap = new Map([
 	[0, "NONE"],
@@ -22,17 +22,6 @@ const messageTypeMap = new Map([
 	[12, "USERNAME_PROOF"],
 ]);
 
-export const NotifierEventSchema = z.object({
-	hubEventId: z.number(),
-	hash: z.string(),
-	fid: z.number(),
-	type: z.number(),
-	timestamp: z.number(),
-	description: z.string(),
-	raw: z.string(),
-});
-export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
-
 const Introduction = () => {
 	return (
 		<div>
@@ -41,7 +30,7 @@ const Introduction = () => {
 			<p>
 				TLDR:{" "}
 				<code className="font-bold bg-gray-100 px-1">
-					{"const data = useEvents();"}
+					{"const event = useListenEvent();"}
 				</code>
 			</p>
 			<p>Real-time Farcaster messages in your React app.</p>
@@ -140,7 +129,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 const App = () => {
-	const { event, isConnected } = useListenEvents({
+	const { event, isConnected } = useListenEvent({
 		notifierURL: "https://rinza-notifier.up.railway.app",
 	});
 
@@ -156,7 +145,9 @@ const App = () => {
 	// TODO: what if latest event gets set first before event
 	useEffect(() => {
 		if (isConnected && event) {
-			setEvents((currentEvents) => [event, ...currentEvents]);
+			setEvents((currentEvents) => {
+				return [event, ...currentEvents].slice(0, 100);
+			});
 		}
 	}, [event, isConnected]);
 
@@ -177,7 +168,6 @@ const App = () => {
 						<LiveCasts data={shuffleArray(logSnapshot)} />
 					</Table>
 				)}
-				{/* {isError && <div className="text-center text-red-500">Error</div>} */}
 			</ScrollArea>
 		</div>
 	);

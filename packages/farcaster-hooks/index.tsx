@@ -1,28 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { z } from "zod";
-import utf8 from "utf8";
-import base64 from "base-64";
-
-export const NotifierEventSchema = z.object({
-	hubEventId: z.number(),
-	hash: z.string(),
-	fid: z.number(),
-	type: z.number(),
-	timestamp: z.number(),
-	description: z.string(),
-	raw: z.string(),
-});
-export type NotifierEventType = z.infer<typeof NotifierEventSchema>;
-
-// TODO: move this to utils, but figure out the Buffer bug first
-export const encodeBase64 = (obj: object) => {
-	return base64.encode(utf8.encode(JSON.stringify(obj)));
-};
-
-export const parseBase64 = (raw: string) => {
-	return JSON.parse(utf8.decode(base64.decode(raw)));
-};
+import { NotifierEventSchema, NotifierEventType } from "@rinza/utils";
 
 /**
  * useEvents() Hook
@@ -39,7 +17,7 @@ export const parseBase64 = (raw: string) => {
  * const events = useEvents();
  * ```
  */
-export const useListenEvents = ({
+export const useListenEvent = ({
 	notifierURL = "https://rinza-notifier.up.railway.app",
 } = {}) => {
 	const [event, setEvent] = useState<NotifierEventType | null>(null);
@@ -167,6 +145,10 @@ export const useRecentEvents = ({
 	};
 };
 
+// take in fname/address, return fid.
+// export const useFid = () => {}
+// can be form of ENS, fname, or address (custody/connected)
+
 /**
  * ideas:
  * - useFname
@@ -174,4 +156,5 @@ export const useRecentEvents = ({
  * - useHubEventId
  * - useHubEventIdFrom
  * - useCasts
+ * - useFarcasterConnect (login with Farcaster)
  */

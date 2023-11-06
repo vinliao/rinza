@@ -3,9 +3,8 @@ import cors from "cors";
 import { emitter } from "./singletons";
 import http from "http";
 import { Server } from "socket.io";
-import { NotifierEventType } from "@rinza/farcaster-hooks";
+import { NotifierEventType } from "@rinza/utils";
 import sqlite from "better-sqlite3";
-import { CastAddMessageSchema, parseBase64 } from "@rinza/utils";
 
 const db = new sqlite("log.sqlite");
 const app = express();
