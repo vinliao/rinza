@@ -129,8 +129,13 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 const App = () => {
-	const { event, isConnected } = useListenEvent({
-		notifierURL: "http://localhost:3000",
+	const notifierURL = import.meta.env.DEV
+		? "http://localhost:3000"
+		: "https://rinza-notifier.up.railway.app";
+	console.log("notifierURL", notifierURL);
+
+	const { event } = useListenEvent({
+		notifierURL,
 	});
 
 	const { result: recentEvents, isFetched } = useLatestEvents();

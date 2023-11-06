@@ -55,7 +55,7 @@ export const useListenEvent = ({
 		});
 
 		socketRef.current.on("merge-message", (eventData: string) => {
-			const parsedTry = NotifierEventSchema.safeParse(JSON.parse(eventData));
+			const parsedTry = NotifierEventSchema.safeParse(eventData);
 			if (!parsedTry.success) {
 				console.error("Data parsing error:", parsedTry.error);
 				return;

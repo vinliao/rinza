@@ -29,7 +29,15 @@ const apiKey = z.string().parse(process.env.NEYNAR_API_KEY);
 const pictureSigner = z.string().parse(process.env.PICTURE_NEYNAR_SIGNER_UUID);
 pictureEcho(apiKey, pictureSigner);
 
-const bot = makeBot({ fid: 4640, notifierURL: "http://localhost:3000" });
+const notifierURL = process.env.IS_DEV
+	? "http://localhost:3000"
+	: "https://rinza-notifier.up.railway.app";
+console.log("notifierURL", notifierURL);
+
+const bot = makeBot({
+	fid: 4640,
+	notifierURL,
+});
 bot.onmessage((ctx) => {
 	pictureEcho(apiKey, pictureSigner, ctx.parentHash);
 });

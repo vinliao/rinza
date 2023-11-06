@@ -94,15 +94,15 @@ const makeDescription = (event: z.infer<typeof HubEventMergeSchema>) => {
 		if (type === 5) return `fid:${fid} link:${linkType} fid:${targetFid}`;
 		return `fid:${fid} removed link:${linkType} fid:${targetFid}`;
 	} else if (type === 7) {
-		// @ts-ignore
 		const verificationAddEthAddressBody =
+			// @ts-ignore
 			event.mergeMessageBody.message.data.verificationAddEthAddressBody;
 		const address = verificationAddEthAddressBody.address.slice(2, 10);
 		const blockHash = verificationAddEthAddressBody.blockHash.slice(2, 10);
 		return `fid:${fid} verified addr:${address} on block:${blockHash}`;
 	} else if (type === 8) {
-		// @ts-ignore
 		const verificationRemoveBody =
+			// @ts-ignore
 			event.mergeMessageBody.message.data.verificationRemoveBody;
 		const address = verificationRemoveBody.address.slice(2, 10);
 		return `fid:${fid} removed addr:${address} verification`;
