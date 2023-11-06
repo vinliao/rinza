@@ -1,30 +1,37 @@
 # rinza
 
-TypeScript libraries for real-time Farcaster apps.
+TypeScript libraries for real-time Farcaster apps. It provides a React hooks and a bot framework.
 
 ## TLDR:
 
-`npm i @rinza/farcaster-hooks`
+**React hooks: `npm i @rinza/farcaster-hooks`**
 
 ```tsx
 import { useEvents } from "@rinza/farcaster-hooks";
 
 const App = () => {
-  // data variable is self-updating array of objects, fetched from Hub
-  const { data, isError, isLoading } = useEvents();
-  if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Error!</p>;
-  return (
-    <div>
-      {data.map((event) => (
-        <span key={event.hubEventId}>{event.description}</span>
-      ))}
-    </div>
-  );
+  // real-time events from Hub
+  const { event } = useListenEvent({ notifierURL });
+  return <span>{event.description}</span>;
 };
 ```
 
 Demo: [https://rinza.org](https://rinza.org)
+
+**Bot framework: `npm i @rinza/farcaster-bot`**
+
+```ts
+import { makeBot } from "@rinza/farcaster-bot";
+
+// sends POST message to Neynar's write API
+const poster = neynarPoster(apiKey, neynarSigner);
+const bot = makeBot({ fid: 4640 });
+  
+// replies with "Echo!" to every reply and mention
+bot.onmessage((ctx) => {
+  poster('Echo!', ctx.parentHash);
+});
+```
 
 ## Why?
 
@@ -34,7 +41,7 @@ This monorepo contains:
 
 - A websocket server that sends real-time Farcaster (see: [apps/notifier](./apps/notifier/))
 - A React hook that wraps the websocket server (see: [packages/farcaster-hooks](./packages/farcaster-hooks/))
-- A TypeScript bot framework (WIP)
+- A bot framework (see: [packages/farcaster-bot](./packages/farcaster-bot/))
 
 What Rinza does not provide:
 

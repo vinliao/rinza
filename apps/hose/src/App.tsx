@@ -26,11 +26,11 @@ const Introduction = () => {
 	return (
 		<div>
 			<p>Rinza is a TypeScript lib for building real-time Farcaster apps.</p>
-			<p>It provides React hooks. (Bot framework WIP.)</p>
+			<p>It provides React hooks and a bot framework.</p>
 			<p>
 				TLDR:{" "}
 				<code className="font-bold bg-gray-100 px-1">
-					{"const event = useListenEvent();"}
+					{"const { event } = useListenEvent();"}
 				</code>
 			</p>
 			<p>Real-time Farcaster messages in your React app.</p>
@@ -134,9 +134,7 @@ const App = () => {
 		: "https://rinza-notifier.up.railway.app";
 	console.log("notifierURL", notifierURL);
 
-	const { event } = useListenEvent({
-		notifierURL,
-	});
+	const { event } = useListenEvent({ notifierURL });
 
 	const { result: recentEvents, isFetched } = useLatestEvents();
 	const [events, setEvents] = useState<NotifierEventType[]>([]);
