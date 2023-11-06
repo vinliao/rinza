@@ -3,7 +3,7 @@ import cors from "cors";
 import { emitter } from "./singletons";
 import http from "http";
 import { Server } from "socket.io";
-import { NotifierEventType } from "@rinza/utils";
+import { NotifierEventType, parseBase64 } from "@rinza/utils";
 import sqlite from "better-sqlite3";
 
 const db = new sqlite("log.sqlite");
@@ -25,7 +25,20 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
 	const sendEventToClient = (data: NotifierEventType) => {
-		socket.emit("merge-message", JSON.stringify(data));
+		socket.emit("merge-message", data);
+
+		// notification
+		if (data.type === 1) {
+			socket.emit("cast", data.raw);
+
+			const cast = parseBase64(data.raw);
+			const mentions = cast.data.castAddBody.mentions;
+			const parent = cast.data.castAddBody?.parentCastId;
+			mentions.map((fid: number) => {
+				socket.emit(`reply-mention-${fid}`, cast);
+			});
+			if (parent) socket.emit(`reply-mention-${parent.fid}`, cast);
+		}
 	};
 	emitter.on("merge-message", sendEventToClient);
 

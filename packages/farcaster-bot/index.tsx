@@ -9,7 +9,7 @@ const makeBot = ({
 
 	return {
 		onmessage: (cb: (ctx: any) => void) => {
-			socket.on("merge-message", (message) => {
+			socket.on("reply-mention-3", (message) => {
 				cb({ fid, returnsThread, message });
 			});
 		},
