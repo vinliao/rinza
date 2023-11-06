@@ -50,6 +50,7 @@ export const CastAddMessageSchema = z.object({
 	signatureScheme: z.number(),
 	signer: BufferSchema,
 });
+type CastAddMessageType = z.infer<typeof CastAddMessageSchema>;
 
 // message type 2
 const CastRemoveMessageSchema = z.object({
@@ -324,3 +325,21 @@ export const reactionTypeMap = new Map([
 	[1, "REACTION_TYPE_LIKE"],
 	[2, "REACTION_TYPE_RECAST"],
 ]);
+
+// =====================================================================================
+// extractor
+// =====================================================================================
+
+export const extractCast = (c: CastAddMessageType) => ({
+	hash: c.hash,
+	parentHash: c.data.castAddBody.parentCastId?.hash,
+	parentFid: c.data.castAddBody.parentCastId?.fid,
+	fid: c.data.fid,
+	timestamp: c.data.timestamp,
+	text: c.data.castAddBody.text,
+	mentions: c.data.castAddBody.mentions,
+	mentionsPositions: c.data.castAddBody.mentionsPositions,
+	embeds: c.data.castAddBody.embeds,
+	parentUrl: c.data.castAddBody.parentUrl,
+});
+export type InternalCastType = ReturnType<typeof extractCast>;
