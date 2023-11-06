@@ -133,7 +133,7 @@ const App = () => {
 		notifierURL: "https://rinza-notifier.up.railway.app",
 	});
 
-	const { result: recentEvents } = useLatestEvents();
+	const { result: recentEvents, isFetched } = useLatestEvents();
 	const [events, setEvents] = useState<NotifierEventType[]>([]);
 
 	useEffect(() => {
@@ -154,7 +154,7 @@ const App = () => {
 		<div className="p-2 max-w-lg h-screen flex flex-col space-y-3">
 			<Introduction />
 			<ScrollArea className="border p-2">
-				{isConnected ? (
+				{isFetched ? (
 					<Table className="w-full">
 						<TableHeaderGreen latestHubEventId={latestHubEventId} />
 						<LiveCasts data={events} />

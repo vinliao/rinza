@@ -1,0 +1,21 @@
+{
+  "name": "@rinza/farcaster-bot",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.2.2",
+    "bun-types": "latest",
+    "concurrently": "^8.2.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.2",
+    "zod": "^3.22.4"
+  }
+}
