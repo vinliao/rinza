@@ -1,4 +1,4 @@
-import { useListenEvent, useRecentEvents } from "@rinza/farcaster-hooks";
+import { useListenEvent, useLatestEvents } from "@rinza/farcaster-hooks";
 import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -133,23 +133,20 @@ const App = () => {
 		notifierURL: "https://rinza-notifier.up.railway.app",
 	});
 
-	const { result: recentEvents, isFetched } = useRecentEvents();
+	const { result: recentEvents } = useLatestEvents();
 	const [events, setEvents] = useState<NotifierEventType[]>([]);
 
 	useEffect(() => {
-		if (isFetched && recentEvents) {
+		if (event) {
+			setEvents((currentEvents) => [event, ...currentEvents]);
+		}
+	}, [event]);
+
+	useEffect(() => {
+		if (recentEvents) {
 			setEvents(recentEvents);
 		}
-	}, [isFetched, recentEvents]);
-
-	// TODO: what if latest event gets set first before event
-	useEffect(() => {
-		if (isConnected && event) {
-			setEvents((currentEvents) => {
-				return [event, ...currentEvents].slice(0, 100);
-			});
-		}
-	}, [event, isConnected]);
+	}, [recentEvents]);
 
 	const latestHubEventId = events[0]?.hubEventId;
 
@@ -157,7 +154,7 @@ const App = () => {
 		<div className="p-2 max-w-lg h-screen flex flex-col space-y-3">
 			<Introduction />
 			<ScrollArea className="border p-2">
-				{isFetched ? (
+				{isConnected ? (
 					<Table className="w-full">
 						<TableHeaderGreen latestHubEventId={latestHubEventId} />
 						<LiveCasts data={events} />

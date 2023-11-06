@@ -84,7 +84,7 @@ export const useListenEvent = ({
 };
 
 /**
- * useRecentEvents() Hook
+ * useLatestEvents() Hook
  *
  * Fetches recent events.
  *
@@ -96,13 +96,13 @@ export const useListenEvent = ({
  *
  * @example
  * ```
- * const { result, isFetched } = useRecentEvents();
+ * const { result, isFetched } = useLatestEvents();
  * ```
  *
  * TODO:
  * - cursor?
  */
-export const useRecentEvents = ({
+export const useLatestEvents = ({
 	notifierURL = "https://rinza-notifier.up.railway.app",
 	maxItems = 25, // min 25, max 100
 } = {}) => {
@@ -145,10 +145,6 @@ export const useRecentEvents = ({
 	};
 };
 
-// take in fname/address, return fid.
-// export const useFid = () => {}
-// can be form of ENS, fname, or address (custody/connected)
-
 /**
  * ideas:
  * - useFname
@@ -157,4 +153,5 @@ export const useRecentEvents = ({
  * - useHubEventIdFrom
  * - useCasts
  * - useFarcasterConnect (login with Farcaster)
+ * - useThread (string of thread, root to cast)
  */
