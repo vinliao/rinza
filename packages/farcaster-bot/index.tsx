@@ -7,7 +7,7 @@ type ContextType = {
 	parentHash?: string;
 };
 
-const makeBot = ({
+export const makeBot = ({
 	fid,
 	notifierURL = "https://rinza-notifier.up.railway.app",
 }: { fid: number; notifierURL?: string }) => {
@@ -19,15 +19,10 @@ const makeBot = ({
 			socket.on(eventName, (cast: InternalCastType) => {
 				cb({
 					casts: [cast],
-					parentFid: cast.parentFid,
-					parentHash: cast.parentHash,
+					parentFid: cast.fid,
+					parentHash: cast.hash,
 				});
 			});
 		},
 	};
 };
-
-const bot = makeBot({ fid: 4640 });
-bot.onmessage((ctx) => {
-	console.log(ctx);
-});

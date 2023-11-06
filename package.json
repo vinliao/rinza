@@ -16,7 +16,11 @@
     "farcaster-hooks:build:watch": "cd packages/farcaster-hooks && npm run build:watch",
     "farcaster-hooks:serve": "cd packages/farcaster-hooks && npm run serve",
     "farcaster-hooks:dev": "cd packages/farcaster-hooks && npm run dev",
-    "hose:dev": "concurrently \"bun run notifier:dev\" \"cd apps/hose && bun run dev\" \"bun run farcaster-hooks:build:watch\""
+    "farcaster-bot:build": "cd packages/farcaster-bot && npm run build",
+    "farcaster-bot:build:watch": "cd packages/farcaster-bot && npm run build:watch",
+    "farcaster-bot:dev": "cd packages/farcaster-bot && npm run dev",
+    "hose:dev": "concurrently \"bun run notifier:dev\" \"cd apps/hose && bun run dev\" \"bun run farcaster-hooks:build:watch\"",
+    "bot-test:dev": "concurrently \"bun run notifier:dev\" \"cd apps/dummy-bots && bun run dev\" \"bun run farcaster-bot:build:watch\""
   },
   "workspaces": ["packages/*"],
   "dependencies": {

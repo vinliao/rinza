@@ -5,6 +5,9 @@
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
+    "build": "bunx tsc -p tsconfig.json",
+    "build:watch": "bun run build --watch",
+    "dev": "npm run build:watch"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.2.2",

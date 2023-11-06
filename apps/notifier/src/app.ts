@@ -33,9 +33,13 @@ io.on("connection", (socket) => {
 			const cast = extractCast(mergeMessage.mergeMessageBody.message);
 			socket.emit("cast", cast);
 			cast.mentions.map((fid: number) => {
+				console.log(`emitting events: reply-mention-${fid}`);
 				socket.emit(`reply-mention-${fid}`, cast);
 			});
-			if (cast.parentFid) socket.emit(`reply-mention-${cast.parentFid}`, cast);
+			if (cast.parentFid) {
+				console.log(`emitting events: reply-mention-${cast.parentFid}`);
+				socket.emit(`reply-mention-${cast.parentFid}`, cast);
+			}
 		}
 	};
 
@@ -62,13 +66,13 @@ server.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
 });
 
-app.get("/thread/:hash", (req, res) => {
-	const hash = req.params.hash;
-	// const stmt = db.prepare(
-	//   "SELECT * FROM events WHERE hash = ? ORDER BY timestamp DESC",
-	// );
-	const thread = stmt.all(hash);
-	res.send(thread);
-});
+// app.get("/thread/:hash", (req, res) => {
+// 	const hash = req.params.hash;
+// 	// const stmt = db.prepare(
+// 	//   "SELECT * FROM events WHERE hash = ? ORDER BY timestamp DESC",
+// 	// );
+// 	const thread = stmt.all(hash);
+// 	res.send(thread);
+// });
 
 // TODO: listen cast reply mention
