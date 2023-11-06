@@ -138,7 +138,9 @@ const App = () => {
 
 	useEffect(() => {
 		if (event) {
-			setEvents((currentEvents) => [event, ...currentEvents]);
+			setEvents((currentEvents) => {
+				return [event, ...currentEvents].slice(0, 100);
+			});
 		}
 	}, [event]);
 
