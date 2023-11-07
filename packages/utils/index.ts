@@ -50,7 +50,7 @@ export const CastAddMessageSchema = z.object({
 	signatureScheme: z.number(),
 	signer: BufferSchema,
 });
-type CastAddMessageType = z.infer<typeof CastAddMessageSchema>;
+export type CastAddMessageType = z.infer<typeof CastAddMessageSchema>;
 
 // message type 2
 const CastRemoveMessageSchema = z.object({

@@ -1,7 +1,9 @@
 import { getSSLHubRpcClient, HubEventType } from "@farcaster/hub-nodejs";
 import { emitter } from "./singletons";
 import {
+	CastAddMessageType,
 	encodeBase64,
+	extractCast,
 	HubEventMergeSchema,
 	userDataTypeMap,
 } from "@rinza/utils";
@@ -42,7 +44,8 @@ const clog = (where: string, data: unknown): void => {
 	});
 };
 
-const embedMentions = (c: any) => {
+const embedMentions = (castMessage: CastAddMessageType) => {
+	const c = castMessage.data.castAddBody;
 	const conds = [
 		!c.mentions,
 		!c.mentionsPositions,
@@ -70,13 +73,11 @@ const makeDescription = (event: z.infer<typeof HubEventMergeSchema>) => {
 	// TODO: cast:f12bc is placeholder for pfp, username, and trunc'd text
 	if (type === 1) {
 		// @ts-ignore
-		const cast = event.mergeMessageBody.message.data.castAddBody;
-		const text = embedMentions(cast);
+		const text = embedMentions(event.mergeMessageBody.message);
 		return `fid:${fid} casted cast:${hash} ${text}`;
 	} else if (type === 2) {
 		// @ts-ignore
-		const cast = event.mergeMessageBody.deletedMessages[0].data.castAddBody;
-		const text = embedMentions(cast);
+		const text = embedMentions(event.mergeMessageBody.deletedMessages[0]);
 		return `fid:${fid} deleted cast:${hash} ${text}`;
 	} else if (type === 3 || type === 4) {
 		// @ts-ignore
@@ -185,6 +186,16 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
     `).run(payload);
 
 		emitter.emit("merge-message", payload);
+
+		if (parsed.mergeMessageBody.message.data.type === 1) {
+			// @ts-ignore
+			const cast = extractCast(parsed.mergeMessageBody.message);
+			// @ts-ignore
+			const text = embedMentions(parsed.mergeMessageBody.message);
+			const castWithMentions = { ...cast, text };
+			console.log(castWithMentions);
+			emitter.emit("cast-add", castWithMentions);
+		}
 	}
 	client.close();
 });

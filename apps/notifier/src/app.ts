@@ -3,7 +3,12 @@ import cors from "cors";
 import { emitter } from "./singletons";
 import http from "http";
 import { Server } from "socket.io";
-import { NotifierEventType, extractCast, parseBase64 } from "@rinza/utils";
+import {
+	InternalCastType,
+	NotifierEventType,
+	extractCast,
+	parseBase64,
+} from "@rinza/utils";
 import sqlite from "better-sqlite3";
 
 const db = new sqlite("log.sqlite");
@@ -24,28 +29,24 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-	const sendEventToClient = (data: NotifierEventType) => {
+	const onMergeMessage = (data: NotifierEventType) => {
 		socket.emit("merge-message", data);
-
-		if (data.type === 1) {
-			// NOTE: this is NOT notifer event
-			const mergeMessage = parseBase64(data.raw);
-			const cast = extractCast(mergeMessage.mergeMessageBody.message);
-			socket.emit("cast", cast);
-			cast.mentions.map((fid: number) => {
-				console.log(`emitting events: reply-mention-${fid}`);
-				socket.emit(`reply-mention-${fid}`, cast);
-			});
-			if (cast.parentFid) {
-				console.log(`emitting events: reply-mention-${cast.parentFid}`);
-				socket.emit(`reply-mention-${cast.parentFid}`, cast);
-			}
-		}
 	};
 
-	emitter.on("merge-message", sendEventToClient);
+	const onCastAdd = (cast: InternalCastType) => {
+		socket.emit("cast-add", cast);
+		socket.emit(`reply-mention-${cast.fid}`, cast);
+		socket.emit(`reply-mention-${cast.parentFid}`, cast);
+	};
+
+	// Attach listeners
+	emitter.on("merge-message", onMergeMessage);
+	emitter.on("cast-add", onCastAdd);
+
 	socket.on("disconnect", () => {
-		emitter.off("merge-message", sendEventToClient);
+		// Remove listeners using the named function references
+		emitter.off("merge-message", onMergeMessage);
+		emitter.off("cast-add", onCastAdd);
 		console.log("Client disconnected");
 	});
 });
