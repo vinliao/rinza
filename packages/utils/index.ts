@@ -3,6 +3,27 @@ import utf8 from "utf8";
 import base64 from "base-64";
 import { Buffer } from "buffer";
 
+export const clog = (where: string, data: unknown): void => {
+	const stringify = (data: unknown): string => {
+		if (data instanceof Map) return JSON.stringify(Array.from(data.entries()));
+		if (typeof data === "object") return JSON.stringify(data);
+		return String(data);
+	};
+
+	const timestamp = new Date().toISOString();
+	const log = `${timestamp} - ${where} - ${stringify(data)}`;
+	console.log(log);
+
+	if (typeof process !== "undefined" && process.versions?.node) {
+		const fs = require("fs");
+		fs.appendFile("./app.log", `${log}`, (err) => {
+			if (err) {
+				console.error("Error writing to log file:", err);
+			}
+		});
+	}
+};
+
 export const encodeBase64 = (obj: object) => {
 	return base64.encode(utf8.encode(JSON.stringify(obj)));
 };

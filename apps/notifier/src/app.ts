@@ -3,12 +3,7 @@ import cors from "cors";
 import { emitter } from "./singletons";
 import http from "http";
 import { Server } from "socket.io";
-import {
-	InternalCastType,
-	NotifierEventType,
-	extractCast,
-	parseBase64,
-} from "@rinza/utils";
+import { InternalCastType, NotifierEventType } from "@rinza/utils";
 import sqlite from "better-sqlite3";
 
 const db = new sqlite("log.sqlite");

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { makeBot } from "@rinza/farcaster-bot";
+import { clog } from "@rinza/utils";
 
 const neynarPoster =
 	(apiKey: string, signer: string) =>
@@ -30,8 +31,9 @@ const poster = neynarPoster(apiKey, pictureSigner);
 const notifierURL = process.env.IS_DEV
 	? "http://localhost:3000"
 	: "https://rinza-notifier.up.railway.app";
-console.log("notifierURL", notifierURL);
+clog("notifierURL", notifierURL);
 
+// TODO: this could recursively call itself if @picture mentions itself
 const bot = makeBot({
 	fid: 4640,
 	notifierURL,

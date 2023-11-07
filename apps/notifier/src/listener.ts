@@ -8,8 +8,8 @@ import {
 	userDataTypeMap,
 } from "@rinza/utils";
 import { z } from "zod";
-import { appendFile } from "fs";
 import sqlite from "better-sqlite3";
+import { clog } from "@rinza/utils";
 
 const FARCASTER_EPOCH = 1609459200; // January 1, 2021 UTC
 
@@ -27,22 +27,6 @@ db.exec(`
     raw TEXT
   );
 `);
-
-const clog = (where: string, data: unknown): void => {
-	const stringify = (data: unknown): string => {
-		if (data instanceof Map)
-			return JSON.stringify(Array.from(data.entries()), null, 2);
-		if (typeof data === "object") return JSON.stringify(data, null, 2);
-		return String(data);
-	};
-
-	const timestamp = new Date().toISOString();
-	const log = `${timestamp} - ${where} - ${stringify(data)}\n`;
-	console.log(log);
-	appendFile("./app.log", log, (err) => {
-		console.log(err);
-	});
-};
 
 const embedMentions = (castMessage: CastAddMessageType) => {
 	const c = castMessage.data.castAddBody;
@@ -145,7 +129,7 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
 	for await (const event of stream) {
 		const parsedTry = HubEventMergeSchema.safeParse(event);
 		if (!parsedTry.success) {
-			clog("subscribe/event", event);
+			clog("subscribe/parsedTry", event);
 			clog("subscribe/parsedTry.error", parsedTry.error);
 			return;
 		}
@@ -164,7 +148,6 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
 			raw: encodeBase64(parsed),
 		};
 
-		clog("subscribe/payload", payload);
 		db.prepare(`
       INSERT INTO events (
         hubEventId,
@@ -185,6 +168,7 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
       )
     `).run(payload);
 
+		clog("merge-message/payload", payload);
 		emitter.emit("merge-message", payload);
 
 		if (parsed.mergeMessageBody.message.data.type === 1) {
@@ -193,7 +177,7 @@ client.$.waitForReady(Date.now() + 5000, async (e) => {
 			// @ts-ignore
 			const text = embedMentions(parsed.mergeMessageBody.message);
 			const castWithMentions = { ...cast, text };
-			console.log(castWithMentions);
+			clog("cast-add/cast", castWithMentions);
 			emitter.emit("cast-add", castWithMentions);
 		}
 	}

@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import logSnapshot from "./logSnapshot";
 import { NotifierEventType } from "@rinza/utils";
+import { clog } from "@rinza/utils";
 
 const messageTypeMap = new Map([
 	[0, "NONE"],
@@ -128,14 +129,13 @@ function shuffleArray<T>(array: T[]): T[] {
 	return array;
 }
 
+const notifierURL = import.meta.env.DEV
+	? "http://localhost:3000"
+	: "https://rinza-notifier.up.railway.app";
+clog("App.tsx/notifierURL", notifierURL);
+
 const App = () => {
-	const notifierURL = import.meta.env.DEV
-		? "http://localhost:3000"
-		: "https://rinza-notifier.up.railway.app";
-	console.log("notifierURL", notifierURL);
-
 	const { event } = useListenEvent({ notifierURL });
-
 	const { result: recentEvents, isFetched } = useLatestEvents();
 	const [events, setEvents] = useState<NotifierEventType[]>([]);
 
